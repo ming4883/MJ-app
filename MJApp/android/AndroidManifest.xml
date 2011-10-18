@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.crender.CrenderWaterExample"
+      package="org.mjapp"
       android:versionCode="1"
       android:versionName="1.0">
 
@@ -10,7 +10,7 @@
   <uses-permission android:name="android.permission.INTERNET"/>
 
   <application android:label="@string/app_name" android:icon="@drawable/icon">
-    <activity android:name=".CrenderWaterExample"
+    <activity android:name=".MJApp"
               android:label="@string/app_name">
     </activity>
     <!-- Our activity is the built-in NativeActivity framework class.
@@ -23,7 +23,7 @@
             >
       <!-- Tell NativeActivity the name of or .so -->
       <meta-data android:name="android.app.lib_name"
-              android:value="crender-water-example" />
+              android:value="mjapp" />
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

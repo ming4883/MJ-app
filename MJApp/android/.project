@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>crender-water-example</name>
+	<name>mjapp</name>
 	<comment></comment>
 	<projects>
-		<project>com_nvidia_devtech_crender-water-example</project>
+		<project>com_nvidia_devtech_mjapp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -24,7 +24,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildArguments</key>
-					<value>${NDKROOT}/ndk-build NDK_MODULE_PATH=../../..</value>
+					<value>${NDKROOT}/ndk-build NDK_MODULE_PATH=../../Crender</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
