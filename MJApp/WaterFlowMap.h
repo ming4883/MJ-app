@@ -7,7 +7,7 @@
  #define A32BIT static const unsigned long
 #endif
 
-A32BIT water_flow_map[] = {
+A32BIT WaterFlowMap[] = {
 
 /* Header */
 0x00000034,		/* dwHeaderSize */

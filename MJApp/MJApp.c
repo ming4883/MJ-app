@@ -1,16 +1,15 @@
-#include "Common.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Pvr.h"
-#include "red_tile_texture.h"
-#include "water_normal_map.h"
-#include "water_flow_map.h"
+#include "../Crender/example/Common.h"
+#include "../Crender/example/Mesh.h"
+#include "../Crender/example/Material.h"
+#include "../Crender/example/Pvr.h"
+#include "Logo.h"
+#include "WaterNormalMap.h"
+#include "WaterFlowMap.h"
 
-#include "../lib/crender/Mem.h"
-#include "../lib/crender/Texture.h"
+#include "../Crender/lib/crender/Mem.h"
+#include "../Crender/lib/crender/Texture.h"
 
 AppContext* app = nullptr;
-//RemoteConfig* config = nullptr;
 
 Mesh* floorMesh = nullptr;
 Mesh* waterMesh = nullptr;
@@ -25,15 +24,9 @@ CrTexture* waterFlowMap = nullptr;
 CrTexture* refractTex = nullptr;
 CrTexture* rttDepth = nullptr;
 
-typedef struct Settings
-{
-	float shadowSlopScale;
-} Settings;
-
 float elapsedTime = 0;
 float deltaTime = 0;
 
-Settings settings = {4};
 const CrVec3 waterN = {0.0f, 1.0f, 0.0f};
 const CrVec3 waterP = {0.0f, 0.0f, 0.0f};
 const float waterSize = 5.0f;
@@ -50,11 +43,19 @@ Input input = {0};
 
 void drawBackground()
 {
+	/*
 	static const CrVec4 c[] = {
 		{0.57f, 0.85f, 1.0f, 1.0f},
 		{0.145f, 0.31f, 0.405f, 1.0f},
 		{0.57f, 0.85f, 1.0f, 1.0f},
 		{0.57f, 0.85f, 1.0f, 1.0f},
+	};
+	*/
+	static const CrVec4 c[] = {
+		{0.57f, 0.85f, 1.0f, 1.0f},
+		{0.57f, 0.85f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 1.0f, 1.0f}, // lower-left
+		{1.0f, 1.0f, 1.0f, 1.0f},  // lower-right
 	};
 	CrGpuState* gpuState = &crContext()->gpuState;
 
@@ -76,6 +77,11 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 
 	gpuState->cull = CrFalse;
 	gpuState->depthTest = CrTrue;
+	gpuState->blend = CrTrue;
+	gpuState->blendFactorSrcRGB = CrGpuState_BlendFactor_SrcAlpha;
+	gpuState->blendFactorSrcA = CrGpuState_BlendFactor_SrcAlpha;
+	gpuState->blendFactorDestRGB = CrGpuState_BlendFactor_OneMinusSrcAlpha;
+	gpuState->blendFactorDestA = CrGpuState_BlendFactor_OneMinusSrcAlpha;
 	crContextApplyGpuState(crContext());
 
 	crGpuProgramPreRender(prog);
@@ -89,7 +95,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	{ CrVec3 v = {0, 1.25f, -1.0f};
 	CrMat44 m;
 	crMat44SetIdentity(&m);
-	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * 5.0f);
+	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * -15.0f);
 	crMat44SetTranslation(&m, &v);
 	
 	app->shaderContext.worldMtx = m;
@@ -112,8 +118,9 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	Material* mtl = waterMtl;
 	CrGpuProgram* prog = mtl->program;
 	
-	gpuState->cull = CrFalse;
+	gpuState->cull = CrTrue;
 	gpuState->depthTest = CrTrue;
+	gpuState->blend = CrFalse;
 	crContextApplyGpuState(crContext());
 
 	crGpuProgramPreRender(mtl->program);
@@ -163,14 +170,8 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 
 void crAppUpdate(unsigned int elapsedMilliseconds)
 {
-	Settings lsettings;
-
 	deltaTime = elapsedMilliseconds / 1000.0f;
 	elapsedTime += deltaTime;
-
-	//remoteConfigLock(config);
-	lsettings = settings;
-	//remoteConfigUnlock(config);
 }
 
 void crAppHandleMouse(int x, int y, int action)
@@ -240,7 +241,6 @@ void crAppConfig()
 
 void crAppFinalize()
 {
-	//remoteConfigFree(config);
 	meshFree(floorMesh);
 	meshFree(waterMesh);
 	meshFree(bgMesh);
@@ -259,32 +259,19 @@ CrBool crAppInitialize()
 {
 	app = appAlloc();
 	appInit(app);
-	
-	// remote config
-	/*
-	{ RemoteVarDesc descs[] = {
-		{"shadowSlopScale", &settings.shadowSlopScale, 0, 8},
-		{nullptr, nullptr, 0, 0}
-	};
-	
-	config = remoteConfigAlloc();
-	remoteConfigInit(config, 8080, CrTrue);
-	remoteConfigAddVars(config, descs);
-	}
-	*/
 
 	// materials
 	{ const char* directives[]  = {nullptr};
 	appLoadMaterialBegin(app, directives);
 
 	sceneMtl = appLoadMaterial(
-		"Reflection.Scene.Vertex",
-		"Reflection.Scene.Fragment",
+		"MJApp.Scene.Vertex",
+		"MJApp.Scene.Fragment",
 		nullptr, nullptr, nullptr);
 
 	waterMtl = appLoadMaterial(
-		"Reflection.SceneWater.Vertex",
-		"Reflection.SceneWater.Fragment",
+		"MJApp.SceneWater.Vertex",
+		"MJApp.SceneWater.Fragment",
 		nullptr, nullptr, nullptr);
 	
 	bgMtl = appLoadMaterial(
@@ -296,9 +283,9 @@ CrBool crAppInitialize()
 	}
 
 	// textures
-	texture = Pvr_createTexture(red_tile_texture);
-	waterNormalMap = Pvr_createTexture(water_normal_map);
-	waterFlowMap = Pvr_createTexture(water_flow_map);
+	texture = Pvr_createTexture(Logo);
+	waterNormalMap = Pvr_createTexture(WaterNormalMap);
+	waterFlowMap = Pvr_createTexture(WaterFlowMap);
 
 	crDbgStr("create scene color buffers\n");
 	refractTex = crTextureAlloc();
@@ -310,7 +297,7 @@ CrBool crAppInitialize()
 
 	// floor
 	{ CrVec3 offset = crVec3(-1.0f, -1.0f, 0);
-	CrVec2 uvs = crVec2(1.0f, 1.0f);
+	CrVec2 uvs = crVec2(1.0f, -1.0f);
 	floorMesh = meshAlloc();
 	meshInitWithQuad(floorMesh, 2, 2, &offset, &uvs, 1);
 	}
@@ -326,7 +313,7 @@ CrBool crAppInitialize()
 	bgMesh = meshAlloc();
 	meshInitWithScreenQuad(bgMesh);
 
-	crDbgStr("Reflection example started\n");
+	crDbgStr("MJApp started\n");
 
 	return CrTrue;
 }
