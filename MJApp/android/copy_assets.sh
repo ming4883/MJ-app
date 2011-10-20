@@ -11,3 +11,4 @@ fi
 echo copying assets...
 cp ../media/MJApp.gles assets
 cp ../../Crender/media/Common.gles assets
+cp ../media/sound1.mid assets

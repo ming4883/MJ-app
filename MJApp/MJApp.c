@@ -41,6 +41,51 @@ typedef struct Input
 
 Input input = {0};
 
+/*
+
+#include "fmod.h"
+#include "fmod_errors.h"
+
+
+FMOD_SYSTEM  *gSystem  = 0;
+FMOD_CHANNEL *gChannel = 0;
+
+#define FMOD_CHECK_RESULT(x) { \
+	FMOD_RESULT _result = x; \
+	if (_result != FMOD_OK) { \
+		crDbgStr("FMOD error! (%d) %s\n%s:%d", _result, FMOD_ErrorString(_result), __FILE__, __LINE__); \
+		exit(-1); \
+	} \
+}
+
+void fmodInit(void)
+{
+	FMOD_RESULT result = FMOD_OK;
+
+	result = FMOD_System_Create(&gSystem);
+	FMOD_CHECK_RESULT(result);
+
+	result = FMOD_System_Init(gSystem, 32, FMOD_INIT_NORMAL, 0);
+	FMOD_CHECK_RESULT(result);
+}
+
+void fmodUpdate(void)
+{
+	FMOD_RESULT	result = FMOD_OK;
+	
+	result = FMOD_System_Update(gSystem);
+	FMOD_CHECK_RESULT(result);
+}
+
+void fmodShutdown(void)
+{
+	FMOD_RESULT result = FMOD_OK;
+
+	result = FMOD_System_Release(gSystem);
+	FMOD_CHECK_RESULT(result);
+}
+/**/
+
 void drawBackground()
 {
 	/*
@@ -172,6 +217,8 @@ void crAppUpdate(unsigned int elapsedMilliseconds)
 {
 	deltaTime = elapsedMilliseconds / 1000.0f;
 	elapsedTime += deltaTime;
+	
+	//fmodUpdate();
 }
 
 void crAppHandleMouse(int x, int y, int action)
@@ -253,6 +300,8 @@ void crAppFinalize()
 	crTextureFree(refractTex);
 	crTextureFree(rttDepth);
 	appFree(app);
+	
+	//fmodShutdown();
 }
 
 CrBool crAppInitialize()
@@ -312,6 +361,8 @@ CrBool crAppInitialize()
 	// bg
 	bgMesh = meshAlloc();
 	meshInitWithScreenQuad(bgMesh);
+	
+	//fmodInit();
 
 	crDbgStr("MJApp started\n");
 
