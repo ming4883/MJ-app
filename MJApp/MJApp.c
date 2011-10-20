@@ -97,10 +97,17 @@ void drawBackground()
 	};
 	*/
 	static const CrVec4 c[] = {
-		{0.57f, 0.85f, 1.0f, 1.0f},
-		{0.57f, 0.85f, 1.0f, 1.0f},
-		{1.0f, 1.0f, 1.0f, 1.0f}, // lower-left
-		{1.0f, 1.0f, 1.0f, 1.0f},  // lower-right
+		//{0xf0 / 255.f,  0x5a / 255.f, 120 / 0x77.f, 1.0f}, // logo color
+		/*
+		{0x43 / 255.f, 0xb4 / 255.f, 0x95 / 255.f, 1.0f}, // lower-left
+		{0x8f / 255.f, 0xd9 / 255.f, 0xc5 / 255.f, 1.0f}, // lower-right
+		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-left
+		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-right
+		*/
+		{0x93 / 255.f, 0x4e / 255.f, 0x83 / 255.f, 1.0f}, // lower-left
+		{0xe1 / 255.f, 0x94 / 255.f, 0xd0 / 255.f, 1.0f}, // lower-right
+		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-left
+		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-right
 	};
 	CrGpuState* gpuState = &crContext()->gpuState;
 
@@ -137,7 +144,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	crGpuProgramUniform3fv(prog, CrHash("u_camPos"), 1, camPos.v);
 
 	// draw wall
-	{ CrVec3 v = {0, 1.25f, -1.0f};
+	{ CrVec3 v = {0, 1.125f, 0.0f};
 	CrMat44 m;
 	crMat44SetIdentity(&m);
 	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * -15.0f);
@@ -241,7 +248,7 @@ void crAppHandleMouse(int x, int y, int action)
 
 void crAppRender()
 {
-	CrVec3 eyeAt = crVec3(0, 2.0f, 6.0f);
+	CrVec3 eyeAt = crVec3(0, 2.0f, 4.0f);
 	CrVec3 lookAt = crVec3(0, 0, 0);
 	CrVec3 eyeUp = *CrVec3_c010();
 	CrMat44 viewMtx;
