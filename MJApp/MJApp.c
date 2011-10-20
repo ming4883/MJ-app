@@ -41,51 +41,6 @@ typedef struct Input
 
 Input input = {0};
 
-/*
-
-#include "fmod.h"
-#include "fmod_errors.h"
-
-
-FMOD_SYSTEM  *gSystem  = 0;
-FMOD_CHANNEL *gChannel = 0;
-
-#define FMOD_CHECK_RESULT(x) { \
-	FMOD_RESULT _result = x; \
-	if (_result != FMOD_OK) { \
-		crDbgStr("FMOD error! (%d) %s\n%s:%d", _result, FMOD_ErrorString(_result), __FILE__, __LINE__); \
-		exit(-1); \
-	} \
-}
-
-void fmodInit(void)
-{
-	FMOD_RESULT result = FMOD_OK;
-
-	result = FMOD_System_Create(&gSystem);
-	FMOD_CHECK_RESULT(result);
-
-	result = FMOD_System_Init(gSystem, 32, FMOD_INIT_NORMAL, 0);
-	FMOD_CHECK_RESULT(result);
-}
-
-void fmodUpdate(void)
-{
-	FMOD_RESULT	result = FMOD_OK;
-	
-	result = FMOD_System_Update(gSystem);
-	FMOD_CHECK_RESULT(result);
-}
-
-void fmodShutdown(void)
-{
-	FMOD_RESULT result = FMOD_OK;
-
-	result = FMOD_System_Release(gSystem);
-	FMOD_CHECK_RESULT(result);
-}
-/**/
-
 void drawBackground()
 {
 	/*
@@ -96,19 +51,16 @@ void drawBackground()
 		{0.57f, 0.85f, 1.0f, 1.0f},
 	};
 	*/
+	
 	static const CrVec4 c[] = {
-		//{0xf0 / 255.f,  0x5a / 255.f, 120 / 0x77.f, 1.0f}, // logo color
-		/*
-		{0x43 / 255.f, 0xb4 / 255.f, 0x95 / 255.f, 1.0f}, // lower-left
-		{0x8f / 255.f, 0xd9 / 255.f, 0xc5 / 255.f, 1.0f}, // lower-right
-		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-left
-		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-right
-		*/
-		{0x93 / 255.f, 0x4e / 255.f, 0x83 / 255.f, 1.0f}, // lower-left
-		{0xe1 / 255.f, 0x94 / 255.f, 0xd0 / 255.f, 1.0f}, // lower-right
+		//{0xf0 / 255.f,  0x5a / 255.f, 0x77 / 255.f, 1.0f}, // logo color
+		//{0x93 / 255.f, 0x4e / 255.f, 0x83 / 255.f, 1.0f}, // lower-left
+		{0xe0 / 255.f, 0xe0 / 255.f, 0xe0 / 255.f, 1.0f}, // lower-left
+		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // lower-right
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-left
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-right
 	};
+	/**/
 	CrGpuState* gpuState = &crContext()->gpuState;
 
 	gpuState->depthTest = CrFalse;
@@ -129,6 +81,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 
 	gpuState->cull = CrFalse;
 	gpuState->depthTest = CrTrue;
+	gpuState->depthWrite = CrFalse;
 	gpuState->blend = CrTrue;
 	gpuState->blendFactorSrcRGB = CrGpuState_BlendFactor_SrcAlpha;
 	gpuState->blendFactorSrcA = CrGpuState_BlendFactor_SrcAlpha;
@@ -147,7 +100,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	{ CrVec3 v = {0, 1.125f, 0.0f};
 	CrMat44 m;
 	crMat44SetIdentity(&m);
-	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * -15.0f);
+	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * 20.0f);
 	crMat44SetTranslation(&m, &v);
 	
 	app->shaderContext.worldMtx = m;
@@ -172,6 +125,7 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	
 	gpuState->cull = CrTrue;
 	gpuState->depthTest = CrTrue;
+	gpuState->depthWrite = CrTrue;
 	gpuState->blend = CrFalse;
 	crContextApplyGpuState(crContext());
 
@@ -204,7 +158,8 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	crGpuProgramUniform3fv(prog, CrHash("u_camPos"), 1, camPos.v);
 
 	// draw water plane
-	app->shaderContext.matDiffuse = crVec4(1.0f, 1.0f, 1.0f, 1);
+	app->shaderContext.matDiffuse = crVec4(0xe0 / 255.f, 0x96 / 255.f, 0x89 / 255.f, 1.0f);
+	//app->shaderContext.matDiffuse = crVec4(0x94 / 255.f, 0x63 / 255.f, 0x5a / 255.f, 1.0f);
 	app->shaderContext.matSpecular = crVec4(1.0f, 1.0f, 1.0f, 1);
 	app->shaderContext.matShininess = 64;
 	{ CrMat44 m;
@@ -224,8 +179,6 @@ void crAppUpdate(unsigned int elapsedMilliseconds)
 {
 	deltaTime = elapsedMilliseconds / 1000.0f;
 	elapsedTime += deltaTime;
-	
-	//fmodUpdate();
 }
 
 void crAppHandleMouse(int x, int y, int action)
@@ -267,7 +220,8 @@ void crAppRender()
 	crContextSetViewport(crContext(), 0, 0, (float)refractTex->width, (float)refractTex->height, -1, 1);
 
 	crContextClearDepth(crContext(), 1);
-	drawBackground();
+	crContextClearColor(crContext(), 1, 1, 1, 1);
+	//drawBackground();
 	{ CrMat44 r, v, vp;
 	crMat44PlanarReflect(&r, &waterN, &waterP);
 	crMat44Mult(&v, &viewMtx, &r);
@@ -280,10 +234,10 @@ void crAppRender()
 
 	// render to screen
 	crContextClearDepth(crContext(), 1);
-	drawBackground();
-	drawScene(viewMtx, projMtx, viewProjMtx, eyeAt);
-
+	crContextClearColor(crContext(), 1, 1, 1, 1);
+	//drawBackground();
 	drawWater(viewMtx, projMtx, viewProjMtx, eyeAt);
+	drawScene(viewMtx, projMtx, viewProjMtx, eyeAt);
 }
 
 void crAppConfig()
@@ -307,8 +261,6 @@ void crAppFinalize()
 	crTextureFree(refractTex);
 	crTextureFree(rttDepth);
 	appFree(app);
-	
-	//fmodShutdown();
 }
 
 CrBool crAppInitialize()
@@ -368,8 +320,6 @@ CrBool crAppInitialize()
 	// bg
 	bgMesh = meshAlloc();
 	meshInitWithScreenQuad(bgMesh);
-	
-	//fmodInit();
 
 	crDbgStr("MJApp started\n");
 
