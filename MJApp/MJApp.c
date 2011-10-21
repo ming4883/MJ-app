@@ -73,7 +73,8 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	CrGpuProgram* prog = sceneMtl->program;
 	CrGpuState* gpuState = &crContext()->gpuState;
 	static CrVec3 cloudPos[] = { 
-	{0, 0.75f, -1.0f}, {2.0f, 1.5f, -1.0f}, {-2.0f, 2.5f, -1.0f}, {0, 3.5f, -1.0f},
+	{0.0f, 0.75f, -1.0f}, {2.0f, 1.5f, -1.0f}, {-2.0f, 2.5f, -1.0f}, 
+	{1.5f, 3.5f, -1.0f}, {-1.5f, 3.5f, -1.0f},
 	};
 	size_t i;
 
@@ -116,14 +117,14 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 		{ CrSampler sampler = {CrSamplerFilter_MagMin_Linear_Mip_None,  CrSamplerAddress_Wrap, CrSamplerAddress_Wrap};
 		crGpuProgramUniformTexture(prog, CrHash("u_tex"), cloud, &sampler);
 		}
-
+		
 		{ CrVec3 v = cloudPos[i];
 		float a = -3; float b = 3;
 		float d = b - a;
 		float w;
 		CrMat44 m;
 		crMat44SetIdentity(&m);
-		cloudPos[i].x += deltaTime * 0.25f;
+		cloudPos[i].x += deltaTime * 0.25f * (rand() / (float)RAND_MAX);
 		w = fmod((cloudPos[i].x - a) / d, 1.0);
 		v.x = a + (b - a) * w;
 		crMat44SetTranslation(&m, &v);
@@ -190,7 +191,7 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	{ CrSampler sampler = {CrSamplerFilter_MagMin_Linear_Mip_None,  CrSamplerAddress_Clamp, CrSamplerAddress_Clamp};
 	crGpuProgramUniformTexture(prog, CrHash("u_flow"), waterFlowMap, &sampler);
 	}
-	
+
 	{ float t = deltaTime * 0.05f;
 	static float p0 = 0;
 	static float p1 = HALF_CYCLE;
@@ -206,11 +207,9 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	crGpuProgramUniform3fv(prog, CrHash("u_camPos"), 1, camPos.v);
 	
 	// draw water plane
-	app->shaderContext.matDiffuse = crVec4(0xf0 / 255.f,  0x5a / 255.f, 0x77 / 255.f, 1.0f);
-	//app->shaderContext.matDiffuse = crVec4(0xe0 / 255.f, 0x96 / 255.f, 0x89 / 255.f, 1.0f);
-	//app->shaderContext.matDiffuse = crVec4(0x94 / 255.f, 0x63 / 255.f, 0x5a / 255.f, 1.0f);
+	app->shaderContext.matDiffuse = crVec4(0.875f, 0.875f, 0.875f, 1);
 	app->shaderContext.matSpecular = crVec4(1.0f, 1.0f, 1.0f, 1);
-	app->shaderContext.matShininess = 64;
+	app->shaderContext.matShininess = 5;
 	{ CrMat44 m;
 	crMat44MakeRotation(&m, CrVec3_c100(), -90);
 
@@ -269,7 +268,6 @@ void crAppRender()
 	crContextSetViewport(crContext(), 0, 0, (float)refractTex->width, (float)refractTex->height, -1, 1);
 
 	crContextClearDepth(crContext(), 1);
-	//crContextClearColor(crContext(), 0x64 / 255.f,  0xcd / 255.f, 0xf2 / 255.f, 1.0f);
 	drawBackground();
 	{ CrMat44 r, v, vp;
 	crMat44PlanarReflect(&r, &waterN, &waterP);
@@ -283,7 +281,6 @@ void crAppRender()
 
 	// render to screen
 	crContextClearDepth(crContext(), 1);
-	//crContextClearColor(crContext(), 0x64 / 255.f,  0xcd / 255.f, 0xf2 / 255.f, 1);
 	drawBackground();
 	drawWater(viewMtx, projMtx, viewProjMtx, eyeAt);
 	drawScene(viewMtx, projMtx, viewProjMtx, eyeAt);

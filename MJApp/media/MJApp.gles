@@ -103,7 +103,8 @@ uniform sampler2D u_flow;
 
 void main() {
 	
-	vec2 flow = texture2D(u_flow, v_texcoord).xy * 2.0 - 1.0;
+	//vec2 flow = texture2D(u_flow, v_texcoord).xy * 2.0 - 1.0;
+	vec2 flow = vec2(0, 0.25);
 	float halfcycle = u_refractionMapParam.y;
 	float phase0 = u_refractionMapParam.z;
 	float phase1 = u_refractionMapParam.w;
@@ -121,12 +122,10 @@ void main() {
 	refracoord += norm.xz * u_refractionMapParam.xx;
 	
 	vec4 refle = texture2D(u_refract, refracoord);
-	/*
+	
 	float d = dot(norm, normalize(u_camPos - v_pos));
 	d = max(d, 0.0);
-	d = pow(d, 4.0);
+	d = pow(d, u_matShininess);
 
-	gl_FragColor = mix(refle * 0.875, u_matSpecular, d);
-	*/
-	gl_FragColor = refle;
+	gl_FragColor = refle * u_matDiffuse + u_matSpecular * d;
 }
