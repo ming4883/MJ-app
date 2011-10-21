@@ -7,14 +7,11 @@ import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
 import android.util.Log;
 import android.media.MediaPlayer;
-//import org.fmod.FMODAudioDevice;
 
 public class MJAppActivity extends NativeActivity {
 	
 	private static final String TAG = "MJAppActivity";
 	private MediaPlayer player = null;
-	
-	//private FMODAudioDevice mFMODAudioDevice = new FMODAudioDevice();
 	
     @Override  
     protected void onCreate(Bundle savedInstanceState) {  
@@ -25,18 +22,16 @@ public class MJAppActivity extends NativeActivity {
     @Override
     public void onStart()
     {
-    	super.onStart();   	
-    	//mFMODAudioDevice.start();
+    	super.onStart();
     	playBgMusic("sound1.mid", true);
-    	Log.v(TAG, "onStart()");
+    	//Log.v(TAG, "onStart()");
     }
     
     @Override
     public void onStop()
     {
-    	//mFMODAudioDevice.stop();
     	super.onStop();
-    	Log.v(TAG, "onStop()");
+    	//Log.v(TAG, "onStop()");
     }
     
     public void playBgMusic(String assetFileName, Boolean looping)
@@ -50,8 +45,8 @@ public class MJAppActivity extends NativeActivity {
 	        player.setLooping(looping);
 	        player.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			Log.v(TAG, e.toString());
 		}
        
     }

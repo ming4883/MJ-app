@@ -60,7 +60,6 @@ void drawBackground()
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-left
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // upper-right
 	};
-	/**/
 	CrGpuState* gpuState = &crContext()->gpuState;
 
 	gpuState->depthTest = CrFalse;
@@ -100,7 +99,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	{ CrVec3 v = {0, 1.125f, 0.0f};
 	CrMat44 m;
 	crMat44SetIdentity(&m);
-	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * 20.0f);
+	crMat44MakeRotation(&m, CrVec3_c010(), elapsedTime * 25.0f);
 	crMat44SetTranslation(&m, &v);
 	
 	app->shaderContext.worldMtx = m;
@@ -154,11 +153,12 @@ void drawWater(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 
 	crGpuProgramUniform4fv(prog, CrHash("u_refractionMapParam"), 1, val);
 	}
-
+	
 	crGpuProgramUniform3fv(prog, CrHash("u_camPos"), 1, camPos.v);
 
 	// draw water plane
-	app->shaderContext.matDiffuse = crVec4(0xe0 / 255.f, 0x96 / 255.f, 0x89 / 255.f, 1.0f);
+	app->shaderContext.matDiffuse = crVec4(0xf0 / 255.f,  0x5a / 255.f, 0x77 / 255.f, 1.0f);
+	//app->shaderContext.matDiffuse = crVec4(0xe0 / 255.f, 0x96 / 255.f, 0x89 / 255.f, 1.0f);
 	//app->shaderContext.matDiffuse = crVec4(0x94 / 255.f, 0x63 / 255.f, 0x5a / 255.f, 1.0f);
 	app->shaderContext.matSpecular = crVec4(1.0f, 1.0f, 1.0f, 1);
 	app->shaderContext.matShininess = 64;

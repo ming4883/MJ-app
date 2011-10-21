@@ -104,4 +104,6 @@ void main() {
 	d = pow(d, 2.0) * 0.125;
 
 	gl_FragColor = mix(refle, u_matDiffuse, d);
+	
+	/*gl_FragColor = refle;*/
 }
