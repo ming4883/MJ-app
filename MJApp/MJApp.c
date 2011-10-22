@@ -96,7 +96,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 	crGpuProgramUniformTexture(prog, CrHash("u_tex"), rainbow, &sampler);
 	}
 
-	{ CrVec3 v = {0, 0.5f, 0.0f};
+	{ CrVec3 v = {0, 1.5f, -0.0f};
 	CrMat44 m;
 	crMat44SetIdentity(&m);
 	crMat44SetTranslation(&m, &v);
@@ -124,7 +124,7 @@ void drawScene(CrMat44 viewMtx, CrMat44 projMtx, CrMat44 viewProjMtx, CrVec3 cam
 		float w;
 		CrMat44 m;
 		crMat44SetIdentity(&m);
-		cloudPos[i].x += deltaTime * 0.25f * (rand() / (float)RAND_MAX);
+		cloudPos[i].x += deltaTime * 0.125f;
 		w = fmod((cloudPos[i].x - a) / d, 1.0);
 		v.x = a + (b - a) * w;
 		crMat44SetTranslation(&m, &v);
