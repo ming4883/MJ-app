@@ -47,12 +47,22 @@ Input input = {0};
 
 void drawBackground(void)
 {
+/*
 	static const CrVec4 c[] = {
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // lower-left
 		{0xff / 255.f, 0xff / 255.f, 0xff / 255.f, 1.0f}, // lower-right
 		{0x64 / 255.f,  0xcd / 255.f, 0xf2 / 255.f, 1.0f}, // upper-left
 		{0x64 / 255.f,  0xcd / 255.f, 0xf2 / 255.f, 1.0f}, // upper-right
 	};
+*/
+	static const CrVec4 c[] = {
+		{0xEE / 255.f, 0xEB / 255.f, 0xFF / 255.f, 1.0f}, // upper-left
+		{0xE7 / 255.f, 0xD3 / 255.f, 0xF5 / 255.f, 1.0f}, // upper-right
+		{0x97 / 255.f, 0x84 / 255.f, 0xFF / 255.f, 1.0f}, // lower-left
+		{0xBF / 255.f, 0x70 / 255.f, 0xE1 / 255.f, 1.0f}, // lower-right
+		
+	};
+
 	CrGpuProgram* prog = bgMtl->program;
 	CrGpuState* gpuState = &crContext()->gpuState;
 
