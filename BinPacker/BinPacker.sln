@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinPacking", "BinPacking\BinPacking.csproj", "{07BD35BC-A010-477A-8E70-8159D29172E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinPackingTest", "BinPackingTest\BinPackingTest.csproj", "{322798F4-D884-4584-B8F9-8C816F09FD0A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07BD35BC-A010-477A-8E70-8159D29172E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07BD35BC-A010-477A-8E70-8159D29172E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07BD35BC-A010-477A-8E70-8159D29172E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07BD35BC-A010-477A-8E70-8159D29172E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{322798F4-D884-4584-B8F9-8C816F09FD0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{322798F4-D884-4584-B8F9-8C816F09FD0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{322798F4-D884-4584-B8F9-8C816F09FD0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{322798F4-D884-4584-B8F9-8C816F09FD0A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

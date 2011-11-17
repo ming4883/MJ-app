@@ -10,3 +10,6 @@ msvc/*
 *.PIXExp
 me-*
 ~*
+bin
+obj
+*.suo
