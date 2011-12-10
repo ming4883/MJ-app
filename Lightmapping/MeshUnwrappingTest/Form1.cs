@@ -53,12 +53,14 @@ namespace MCD
 				panel1.Invalidate();
 			};
 
+			/*
 			listBox1.Items.Add(new Test1.Factory());
 			listBox1.Items.Add(new Test2.Factory());
 			listBox1.Items.Add(new Test3.Factory());
 			listBox1.Items.Add(new Test4.Factory());
 			listBox1.Items.Add(new Test5.Factory());
 			listBox1.Items.Add(new Test6.Factory());
+			*/
 
 			listBox1.DoubleClick += new EventHandler(button1_Click);
 
@@ -75,11 +77,14 @@ namespace MCD
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			if (null == listBox1.SelectedItem)
-				return;
+			//if (null == listBox1.SelectedItem)
+			//	return;
 
 			logger.Clear();
 
+			Test1 test = new Test1();
+			test.Run();
+			/*
 			TestBase test = (listBox1.SelectedItem as TestBase.FactoryBase).Create();
 			
 			bmps = new List<Bitmap>();
@@ -91,7 +96,7 @@ namespace MCD
 				numericUpDown1.Value = 0;
 
 			numericUpDown1.Maximum = bmps.Count - 1;
-
+			*/
 			panel1.Invalidate();
 		}
 	}

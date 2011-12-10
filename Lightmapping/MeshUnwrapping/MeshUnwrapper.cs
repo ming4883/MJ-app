@@ -8,7 +8,7 @@ namespace MCD
 {
 	public interface IMeshUnwrapper
 	{
-		void Unwrap(Mesh mesh, float scale);
+		Mesh Unwrap(Mesh mesh, float scale);
 	}
 
 	public class PreFaceUnwrapper : IMeshUnwrapper
@@ -60,7 +60,7 @@ namespace MCD
 			}
 		}
 
-		public void Unwrap(Mesh mesh, float scale)
+		public Mesh Unwrap(Mesh mesh, float scale)
 		{
 			List<FaceUV> faceuvs = new List<FaceUV>();
 
@@ -77,6 +77,7 @@ namespace MCD
 
 				Vector3 n = Vector3.Cross(e1, e2);
 				n.Normalize();
+				Console.Write("n = {0}\n", n);
 
 				// get major axis & assign texcoord
 				TC tc = GetMajorAxis(ref n);
@@ -89,6 +90,10 @@ namespace MCD
 
 				faceuvs.Add(faceuv);
 			}
+
+			Mesh output = new Mesh();
+
+			return output;
 		}
 	}
 }

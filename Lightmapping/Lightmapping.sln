@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinPackingTest", "BinPackin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshUnwrapping", "MeshUnwrapping\MeshUnwrapping.csproj", "{B7B20D42-6A8C-4500-BE91-466FF6F5753B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshUnwrappingTest", "MeshUnwrappingTest\MeshUnwrappingTest.csproj", "{FBDCB55E-5595-49C6-BFEF-C9D3506DBEAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{B7B20D42-6A8C-4500-BE91-466FF6F5753B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7B20D42-6A8C-4500-BE91-466FF6F5753B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7B20D42-6A8C-4500-BE91-466FF6F5753B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBDCB55E-5595-49C6-BFEF-C9D3506DBEAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDCB55E-5595-49C6-BFEF-C9D3506DBEAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBDCB55E-5595-49C6-BFEF-C9D3506DBEAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBDCB55E-5595-49C6-BFEF-C9D3506DBEAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
