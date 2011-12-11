@@ -16,10 +16,10 @@ namespace MCD
 		List<Vector2> texcrds0;
 		List<Vector2> texcrds1;
 
-		public Attribute<Vector3> positionsA;
-		public Attribute<Vector3> normalsA;
-		public Attribute<Vector2> texcrds0A;
-		public Attribute<Vector2> texcrds1A;
+		Attribute<Vector3> positionsA;
+		Attribute<Vector3> normalsA;
+		Attribute<Vector2> texcrds0A;
+		Attribute<Vector2> texcrds1A;
 
 		public List<int> Indices { get { return indices; } }
 		public Attribute<Vector3> Positions { get { return positionsA; } }
@@ -78,6 +78,13 @@ namespace MCD
 					attributes[off + 1] = a1;
 					attributes[off + 2] = a2;
 				}
+			}
+
+			public void CopyFaceTo(Attribute<T> dst, int faceIndex)
+			{
+				T a0, a1, a2;
+				this.GetFace(out a0, out a1, out a2, faceIndex);
+				dst.SetFace(faceIndex, a0, a1, a2);
 			}
 		}
 

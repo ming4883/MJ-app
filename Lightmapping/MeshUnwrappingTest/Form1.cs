@@ -12,7 +12,7 @@ namespace MCD
 {
 	public partial class Form1 : Form
 	{
-		List<Bitmap> bmps;
+		Mesh _mesh = null;
 
 		public class TextBoxStreamWriter : TextWriter
 		{
@@ -69,10 +69,7 @@ namespace MCD
 
 		void panel1_Paint(object sender, PaintEventArgs e)
 		{
-			if (null == bmps || 0 == bmps.Count)
-				return;
-
-			e.Graphics.DrawImage(bmps[(int)numericUpDown1.Value], Point.Empty);
+			MeshVisualizer.DrawTexcrd1(_mesh, e.Graphics, panel1.Size);
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -82,21 +79,9 @@ namespace MCD
 
 			logger.Clear();
 
-			Test1 test = new Test1();
-			test.Run();
-			/*
-			TestBase test = (listBox1.SelectedItem as TestBase.FactoryBase).Create();
+			_mesh = null;
+			new Test1().Run(ref _mesh);
 			
-			bmps = new List<Bitmap>();
-			test.Run(bmps);
-
-			Console.WriteLine("{0} texture is generated.", bmps.Count);
-
-			if (numericUpDown1.Value > bmps.Count - 1)
-				numericUpDown1.Value = 0;
-
-			numericUpDown1.Maximum = bmps.Count - 1;
-			*/
 			panel1.Invalidate();
 		}
 	}

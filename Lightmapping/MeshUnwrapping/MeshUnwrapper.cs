@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OpenTK;
 
 namespace MCD
 {
 	public interface IMeshUnwrapper
 	{
-		Mesh Unwrap(Mesh mesh, float scale);
+		Mesh Unwrap(Mesh mesh, int packSize, float worldScale);
 	}
 
 	public class PreFaceUnwrapper : IMeshUnwrapper
@@ -23,18 +21,40 @@ namespace MCD
 		{
 			public Vector2[] Texcrd = new Vector2[3];
 
-			public void ZeroOffset()
+			public void Translate(Vector2 offset)
 			{
-				Vector2 min = Texcrd[0], max = Texcrd[0];
+				for (int i = 0; i < Texcrd.Length; ++i)
+					Texcrd[i] += offset;
+			}
+
+			public void Scale(Vector2 scale)
+			{
+				for (int i = 0; i < Texcrd.Length; ++i)
+				{
+					Texcrd[i].X *= scale.X;
+					Texcrd[i].Y *= scale.Y;
+				}
+			}
+
+			public void Bounding(out Vector2 min, out Vector2 max)
+			{
+				min = Texcrd[0];
+				max = Texcrd[0];
 
 				for (int i = 1; i < Texcrd.Length; ++i)
 				{
-					min = Vector2.Min(min, Texcrd[i]);
-					max = Vector2.Max(max, Texcrd[i]);
+					min.X = Math.Min(min.X, Texcrd[i].X);
+					min.Y = Math.Min(min.Y, Texcrd[i].Y);
+					max.X = Math.Max(max.X, Texcrd[i].X);
+					max.Y = Math.Max(max.Y, Texcrd[i].Y);
 				}
+			}
 
-				for (int i = 0; i < Texcrd.Length; ++i)
-					Texcrd[i] -= min;
+			public void ZeroOffset()
+			{
+				Vector2 min, max;
+				Bounding(out min, out max);
+				Translate(-min);
 			}
 		}
 
@@ -60,7 +80,7 @@ namespace MCD
 			}
 		}
 
-		public Mesh Unwrap(Mesh mesh, float scale)
+		public Mesh Unwrap(Mesh mesh, int packSize, float worldScale)
 		{
 			List<FaceUV> faceuvs = new List<FaceUV>();
 
@@ -77,36 +97,66 @@ namespace MCD
 
 				Vector3 n = Vector3.Cross(e1, e2);
 				n.Normalize();
-				Console.Write("n = {0}\n", n);
 
 				// get major axis & assign texcoord
 				TC tc = GetMajorAxis(ref n);
 
 				FaceUV faceuv = new FaceUV();
-				faceuv.Texcrd[0] = tc(p0, scale);
-				faceuv.Texcrd[1] = tc(p1, scale);
-				faceuv.Texcrd[2] = tc(p2, scale);
-				faceuv.ZeroOffset();
+				faceuv.Texcrd[0] = tc(p0, worldScale);
+				faceuv.Texcrd[1] = tc(p1, worldScale);
+				faceuv.Texcrd[2] = tc(p2, worldScale);
+				
+				//Console.WriteLine("{0}, {1}, {2}", faceuv.Texcrd[0], faceuv.Texcrd[1], faceuv.Texcrd[2]);
 
 				faceuvs.Add(faceuv);
 			}
 
+			// packing
+			PackSettings packSettings = new PackSettings();
+			List<PackOutputList> packOutputs = new List<PackOutputList>();
+			List<PackInput> packInputs = new List<PackInput>();
+
+			for (int i = 0; i < fcnt; ++i)
+			{
+				FaceUV fuv = faceuvs[i];
+				Vector2 min, max;
+				fuv.Bounding(out min, out max);
+
+				PackInput pi = new PackInput();
+				pi.Size.Width = (int)Math.Ceiling(max.X - min.X);
+				pi.Size.Height = (int)Math.Ceiling(max.Y - min.Y);
+				pi.Userdata = fuv;
+				packInputs.Add(pi);
+			}
+
+			packSettings.Size.Width = packSize;
+			packSettings.Size.Height = packSize;
+			packSettings.Border = 1;
+			Vector2 scale = new Vector2(1.0f / packSize, 1.0f / packSize);
+
+			JimScottPacker packer = new JimScottPacker();
+			packer.Pack(packSettings, packInputs, packOutputs);
+
+			foreach (PackOutputList polist in packOutputs)
+			{
+				foreach (PackOutput po in polist)
+				{
+					FaceUV fuv = packInputs[po.Input].Userdata as FaceUV;
+					fuv.ZeroOffset();
+					fuv.Translate(new Vector2(po.X, po.Y));
+					fuv.Scale(scale);
+				}
+			}
+
+			// create output mesh
 			Mesh output = new Mesh();
 			output.Init(mesh.Indices.Count);
 
 			for (int i = 0; i < fcnt; ++i)
 			{
-				Vector3 p0, p1, p2;
-				mesh.Positions.GetFace(out p0, out p1, out p2, i);
-				output.Positions.SetFace(i, p0, p1, p2);
-
-				Vector3 n0, n1, n2;
-				mesh.Normals.GetFace(out n0, out n1, out n2, i);
-				output.Normals.SetFace(i, n0, n1, n2);
-
-				Vector2 tc0, tc1, tc2;
-				mesh.Texcrds0.GetFace(out tc0, out tc1, out tc2, i);
-				output.Texcrds0.SetFace(i, tc0, tc1, tc2);
+				mesh.Positions.CopyFaceTo(output.Positions, i);
+				mesh.Normals.CopyFaceTo(output.Normals, i);
+				mesh.Texcrds0.CopyFaceTo(output.Texcrds0, i);
 
 				FaceUV fuv = faceuvs[i];
 				output.Texcrds1.SetFace(i, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);

@@ -9,7 +9,7 @@ namespace MCD
 	public class PackInput
 	{
 		public Size Size;
-		public string Userdata;
+		public object Userdata;
 	}
 
 	public class PackOutput

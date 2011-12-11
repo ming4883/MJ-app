@@ -39,6 +39,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -51,7 +52,14 @@
   <ItemGroup>
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshUnwrapper.cs" />
+    <Compile Include="MeshVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BinPacking\BinPacking.csproj">
+      <Project>{07BD35BC-A010-477A-8E70-8159D29172E9}</Project>
+      <Name>BinPacking</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

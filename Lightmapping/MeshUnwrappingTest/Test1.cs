@@ -7,20 +7,20 @@ namespace MCD
 {
 	class Test1
 	{
-		protected Mesh CreateBoxMesh()
+		protected Mesh CreateBoxMesh(float hs)
 		{
 			Mesh ret = new Mesh();
 
 			ret.Init(36, 8);
-			ret.Positions.Raw[0] = new OpenTK.Vector3(-1, 1, 1);
-			ret.Positions.Raw[1] = new OpenTK.Vector3(-1, -1, 1);
-			ret.Positions.Raw[2] = new OpenTK.Vector3(1, 1, 1);
-			ret.Positions.Raw[3] = new OpenTK.Vector3(1, -1, 1);
+			ret.Positions.Raw[0] = new OpenTK.Vector3(-hs, hs, hs);
+			ret.Positions.Raw[1] = new OpenTK.Vector3(-hs, -hs, hs);
+			ret.Positions.Raw[2] = new OpenTK.Vector3(hs, hs, hs);
+			ret.Positions.Raw[3] = new OpenTK.Vector3(hs, -hs, hs);
 
-			ret.Positions.Raw[4] = new OpenTK.Vector3(-1, 1, -1);
-			ret.Positions.Raw[5] = new OpenTK.Vector3(-1, -1, -1);
-			ret.Positions.Raw[6] = new OpenTK.Vector3(1, 1, -1);
-			ret.Positions.Raw[7] = new OpenTK.Vector3(1, -1, -1);
+			ret.Positions.Raw[4] = new OpenTK.Vector3(-hs, hs, -hs);
+			ret.Positions.Raw[5] = new OpenTK.Vector3(-hs, -hs, -hs);
+			ret.Positions.Raw[6] = new OpenTK.Vector3(hs, hs, -hs);
+			ret.Positions.Raw[7] = new OpenTK.Vector3(hs, -hs, -hs);
 
 			for (int i = 0; i < ret.VertexCount; ++i)
 			{
@@ -43,11 +43,11 @@ namespace MCD
 			return ret;
 		}
 
-		public void Run()
+		public void Run(ref Mesh outMesh)
 		{
-			Mesh mesh = CreateBoxMesh();
+			Mesh mesh = CreateBoxMesh(16.0f);
 			PreFaceUnwrapper unwrapper = new PreFaceUnwrapper();
-			unwrapper.Unwrap(mesh, 1.0f / 16.0f);
+			outMesh = unwrapper.Unwrap(mesh, 512, 1.0f);
 		}
 	}
 }
