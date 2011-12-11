@@ -21,20 +21,20 @@ namespace MCD
 
 		protected class FaceUV
 		{
-			public Vector2[] Texcoord = new Vector2[3];
+			public Vector2[] Texcrd = new Vector2[3];
 
 			public void ZeroOffset()
 			{
-				Vector2 min = Texcoord[0], max = Texcoord[0];
+				Vector2 min = Texcrd[0], max = Texcrd[0];
 
-				for (int i = 1; i < Texcoord.Length; ++i)
+				for (int i = 1; i < Texcrd.Length; ++i)
 				{
-					min = Vector2.Min(min, Texcoord[i]);
-					max = Vector2.Max(max, Texcoord[i]);
+					min = Vector2.Min(min, Texcrd[i]);
+					max = Vector2.Max(max, Texcrd[i]);
 				}
 
-				for (int i = 0; i < Texcoord.Length; ++i)
-					Texcoord[i] -= min;
+				for (int i = 0; i < Texcrd.Length; ++i)
+					Texcrd[i] -= min;
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace MCD
 				Vector3 p0, p1, p2, e1, e2;
 				
 				// computer the face normal
-				mesh.FacePositions(out p0, out p1, out p2, i);
+				mesh.Positions.GetFace(out p0, out p1, out p2, i);
 
 				e1 = p1 - p0; e1.Normalize();
 				e2 = p2 - p0; e2.Normalize();
@@ -83,15 +83,34 @@ namespace MCD
 				TC tc = GetMajorAxis(ref n);
 
 				FaceUV faceuv = new FaceUV();
-				faceuv.Texcoord[0] = tc(p0, scale);
-				faceuv.Texcoord[1] = tc(p1, scale);
-				faceuv.Texcoord[2] = tc(p2, scale);
+				faceuv.Texcrd[0] = tc(p0, scale);
+				faceuv.Texcrd[1] = tc(p1, scale);
+				faceuv.Texcrd[2] = tc(p2, scale);
 				faceuv.ZeroOffset();
 
 				faceuvs.Add(faceuv);
 			}
 
 			Mesh output = new Mesh();
+			output.Init(mesh.Indices.Count);
+
+			for (int i = 0; i < fcnt; ++i)
+			{
+				Vector3 p0, p1, p2;
+				mesh.Positions.GetFace(out p0, out p1, out p2, i);
+				output.Positions.SetFace(i, p0, p1, p2);
+
+				Vector3 n0, n1, n2;
+				mesh.Normals.GetFace(out n0, out n1, out n2, i);
+				output.Normals.SetFace(i, n0, n1, n2);
+
+				Vector2 tc0, tc1, tc2;
+				mesh.Texcrds0.GetFace(out tc0, out tc1, out tc2, i);
+				output.Texcrds0.SetFace(i, tc0, tc1, tc2);
+
+				FaceUV fuv = faceuvs[i];
+				output.Texcrds1.SetFace(i, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+			}
 
 			return output;
 		}

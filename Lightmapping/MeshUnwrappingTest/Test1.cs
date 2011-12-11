@@ -12,21 +12,21 @@ namespace MCD
 			Mesh ret = new Mesh();
 
 			ret.Init(36, 8);
-			ret.Positions[0] = new OpenTK.Vector3(-1, 1, 1);
-			ret.Positions[1] = new OpenTK.Vector3(-1,-1, 1);
-			ret.Positions[2] = new OpenTK.Vector3( 1, 1, 1);
-			ret.Positions[3] = new OpenTK.Vector3( 1,-1, 1);
+			ret.Positions.Raw[0] = new OpenTK.Vector3(-1, 1, 1);
+			ret.Positions.Raw[1] = new OpenTK.Vector3(-1, -1, 1);
+			ret.Positions.Raw[2] = new OpenTK.Vector3(1, 1, 1);
+			ret.Positions.Raw[3] = new OpenTK.Vector3(1, -1, 1);
 
-			ret.Positions[4] = new OpenTK.Vector3(-1, 1,-1);
-			ret.Positions[5] = new OpenTK.Vector3(-1,-1,-1);
-			ret.Positions[6] = new OpenTK.Vector3( 1, 1,-1);
-			ret.Positions[7] = new OpenTK.Vector3( 1,-1,-1);
+			ret.Positions.Raw[4] = new OpenTK.Vector3(-1, 1, -1);
+			ret.Positions.Raw[5] = new OpenTK.Vector3(-1, -1, -1);
+			ret.Positions.Raw[6] = new OpenTK.Vector3(1, 1, -1);
+			ret.Positions.Raw[7] = new OpenTK.Vector3(1, -1, -1);
 
 			for (int i = 0; i < ret.VertexCount; ++i)
 			{
-				ret.Normals[i] = OpenTK.Vector3.Zero;
-				ret.Texcrds0[i] = OpenTK.Vector2.Zero;
-				ret.Texcrds1[i] = OpenTK.Vector2.Zero;
+				ret.Normals.Raw[i] = OpenTK.Vector3.Zero;
+				ret.Texcrds0.Raw[i] = OpenTK.Vector2.Zero;
+				ret.Texcrds1.Raw[i] = OpenTK.Vector2.Zero;
 			}
 
 			int[] idx = new int[] {
@@ -42,11 +42,12 @@ namespace MCD
 			ret.Indices.AddRange(idx);
 			return ret;
 		}
+
 		public void Run()
 		{
 			Mesh mesh = CreateBoxMesh();
 			PreFaceUnwrapper unwrapper = new PreFaceUnwrapper();
-			unwrapper.Unwrap(mesh, 0.125f);
+			unwrapper.Unwrap(mesh, 1.0f / 16.0f);
 		}
 	}
 }
