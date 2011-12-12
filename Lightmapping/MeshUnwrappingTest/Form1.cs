@@ -55,6 +55,7 @@ namespace MCD
 
 			listBox1.Items.Add(new Test1.Factory());
 			listBox1.Items.Add(new Test2.Factory());
+			listBox1.Items.Add(new Test3.Factory());
 
 			listBox1.DoubleClick += new EventHandler(button1_Click);
 

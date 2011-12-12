@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Test1.cs" />
     <Compile Include="Test2.cs" />
+    <Compile Include="Test3.cs" />
     <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>

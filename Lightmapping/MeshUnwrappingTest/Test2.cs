@@ -8,7 +8,7 @@ namespace MCD
 
 		public override void Run(List<Mesh> outputs)
 		{
-			Mesh mesh = CreateBoxMesh(8.0f);
+			Mesh mesh = CreateBoxMesh(16.0f);
 			GroupedFaceUnwrapper unwrapper = new GroupedFaceUnwrapper();
 			outputs.Add(unwrapper.Unwrap(mesh, 512, 1.0f));
 		}

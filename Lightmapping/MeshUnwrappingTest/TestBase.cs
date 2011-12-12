@@ -17,28 +17,8 @@ namespace MCD
 			public override string ToString() { return typeof(T).Name; }
 		}
 
-		protected Mesh CreateBoxMesh(float hs)
+		protected Mesh CreateBoxMesh(float hs, OpenTK.Vector3[] vtxOff)
 		{
-			Mesh ret = new Mesh();
-
-			ret.Init(36, 8);
-			ret.Positions.Raw[0] = new OpenTK.Vector3(-hs, hs, hs);
-			ret.Positions.Raw[1] = new OpenTK.Vector3(-hs, -hs, hs);
-			ret.Positions.Raw[2] = new OpenTK.Vector3(hs, hs, hs);
-			ret.Positions.Raw[3] = new OpenTK.Vector3(hs, -hs, hs);
-
-			ret.Positions.Raw[4] = new OpenTK.Vector3(-hs, hs, -hs);
-			ret.Positions.Raw[5] = new OpenTK.Vector3(-hs, -hs, -hs);
-			ret.Positions.Raw[6] = new OpenTK.Vector3(hs, hs, -hs);
-			ret.Positions.Raw[7] = new OpenTK.Vector3(hs, -hs, -hs);
-
-			for (int i = 0; i < ret.VertexCount; ++i)
-			{
-				ret.Normals.Raw[i] = OpenTK.Vector3.Zero;
-				ret.Texcrds0.Raw[i] = OpenTK.Vector2.Zero;
-				ret.Texcrds1.Raw[i] = OpenTK.Vector2.Zero;
-			}
-
 			int[] idx = new int[] {
 				0,1,2,3,2,1,
 				2,3,6,7,6,3,
@@ -48,11 +28,49 @@ namespace MCD
 				1,5,3,7,3,5,
 			};
 
+			OpenTK.Vector3[] vtx = new OpenTK.Vector3[] {
+				new OpenTK.Vector3(-hs, hs, hs),
+				new OpenTK.Vector3(-hs, -hs, hs),
+				new OpenTK.Vector3(hs, hs, hs),
+				new OpenTK.Vector3(hs, -hs, hs),
+
+				new OpenTK.Vector3(-hs, hs, -hs),
+				new OpenTK.Vector3(-hs, -hs, -hs),
+				new OpenTK.Vector3(hs, hs, -hs),
+				new OpenTK.Vector3(hs, -hs, -hs),
+			};
+
+			int instCnt = vtxOff.Length;
+
+			Mesh ret = new Mesh();
+			ret.Init(idx.Length * instCnt, vtx.Length * instCnt);
+
+			ret.Positions.Raw.Clear();
 			ret.Indices.Clear();
-			ret.Indices.AddRange(idx);
+
+			for (int i = 0; i < instCnt; ++i)
+			{
+				int ioff = i * vtx.Length;
+				OpenTK.Vector3 voff = vtxOff[i];
+
+				for (int j = 0; j < idx.Length; ++j)
+					ret.Indices.Add(idx[j] + ioff);
+
+				for (int j = 0; j < vtx.Length; ++j)
+					ret.Positions.Raw.Add(vtx[j] + voff);
+			}
+			
 			return ret;
 		}
 
-		
+		protected Mesh CreateBoxMesh(float hs)
+		{
+			OpenTK.Vector3[] vtxOff = new OpenTK.Vector3[] {
+				OpenTK.Vector3.Zero,
+			};
+
+			return CreateBoxMesh(hs, vtxOff);
+		}
+
 	}
 }

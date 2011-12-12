@@ -15,8 +15,7 @@ namespace MCD
 		protected class FaceUV
 		{
 			public Vector2[] Texcrd = new Vector2[3];
-			public Vector3 Normal;
-
+			
 			public void Translate(Vector2 offset)
 			{
 				for (int i = 0; i < Texcrd.Length; ++i)
@@ -98,7 +97,6 @@ namespace MCD
 				TC tc = GetMajorAxis(ref n);
 
 				FaceUV faceuv = new FaceUV();
-				faceuv.Normal = n;
 				faceuv.Texcrd[0] = tc(p0, worldScale);
 				faceuv.Texcrd[1] = tc(p1, worldScale);
 				faceuv.Texcrd[2] = tc(p2, worldScale);
@@ -134,6 +132,7 @@ namespace MCD
 			JimScottPacker packer = new JimScottPacker();
 			packer.Pack(packSettings, packInputs, packOutputs);
 
+			// convert pack outputs back to faceuv
 			foreach (PackOutputList polist in packOutputs)
 			{
 				foreach (PackOutput po in polist)
