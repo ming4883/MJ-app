@@ -15,6 +15,12 @@ namespace MCD
 			public abstract TestBase Create();
 		}
 
+		public class FactoryT<T> : FactoryBase where T : TestBase, new()
+		{
+			public override TestBase Create() { return new T(); }
+			public override string ToString() { return typeof(T).Name; }
+		}
+
 		protected PackSettings settings = new PackSettings();
 		protected List<PackOutputList> outputs = new List<PackOutputList>();
 		protected List<PackInput> inputs = new List<PackInput>();

@@ -83,6 +83,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Test1.cs" />
+    <Compile Include="Test2.cs" />
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeshUnwrapping\MeshUnwrapping.csproj">

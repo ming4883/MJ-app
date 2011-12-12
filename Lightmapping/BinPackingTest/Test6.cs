@@ -5,18 +5,7 @@ namespace MCD
 {
 	class Test6 : TestBase
 	{
-		public class Factory : TestBase.FactoryBase
-		{
-			public override TestBase Create()
-			{
-				return new Test6();
-			}
-
-			public override string ToString()
-			{
-				return typeof(Test6).Name;
-			}
-		}
+		public class Factory : TestBase.FactoryT<Test6> { }
 
 		public override void Run(List<Bitmap> bmps)
 		{

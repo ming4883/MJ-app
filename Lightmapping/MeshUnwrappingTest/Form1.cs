@@ -12,7 +12,7 @@ namespace MCD
 {
 	public partial class Form1 : Form
 	{
-		Mesh _mesh = null;
+		List<Mesh> meshes = null;
 
 		public class TextBoxStreamWriter : TextWriter
 		{
@@ -53,14 +53,8 @@ namespace MCD
 				panel1.Invalidate();
 			};
 
-			/*
 			listBox1.Items.Add(new Test1.Factory());
 			listBox1.Items.Add(new Test2.Factory());
-			listBox1.Items.Add(new Test3.Factory());
-			listBox1.Items.Add(new Test4.Factory());
-			listBox1.Items.Add(new Test5.Factory());
-			listBox1.Items.Add(new Test6.Factory());
-			*/
 
 			listBox1.DoubleClick += new EventHandler(button1_Click);
 
@@ -69,18 +63,26 @@ namespace MCD
 
 		void panel1_Paint(object sender, PaintEventArgs e)
 		{
-			MeshVisualizer.DrawTexcrd1(_mesh, e.Graphics, panel1.Size);
+			if (null == meshes || 0 == meshes.Count)
+				return;
+
+			MeshVisualizer.DrawTexcrd1(meshes[(int)numericUpDown1.Value], e.Graphics, panel1.Size);
 		}
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			//if (null == listBox1.SelectedItem)
-			//	return;
+			if (null == listBox1.SelectedItem)
+				return;
 
 			logger.Clear();
 
-			_mesh = null;
-			new Test1().Run(ref _mesh);
+			meshes = new List<Mesh>();
+			(listBox1.SelectedItem as TestBase.FactoryBase).Create().Run(meshes);
+
+			if (numericUpDown1.Value > meshes.Count - 1)
+				numericUpDown1.Value = 0;
+
+			numericUpDown1.Maximum = meshes.Count - 1;
 			
 			panel1.Invalidate();
 		}

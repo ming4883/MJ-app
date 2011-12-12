@@ -50,9 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GroupedFaceUnwrapper.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshUnwrapper.cs" />
     <Compile Include="MeshVisualizer.cs" />
+    <Compile Include="PreFaceUnwrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
