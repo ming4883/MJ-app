@@ -75,7 +75,7 @@ namespace MCD
 			}
 		}
 
-		public virtual Mesh Unwrap(Mesh mesh, int packSize, float worldScale)
+		public virtual List<Mesh> Unwrap(Mesh mesh, int packSize, float worldScale)
 		{
 			List<FaceUV> faceuvs = new List<FaceUV>();
 
@@ -145,17 +145,26 @@ namespace MCD
 			}
 
 			// create output mesh
-			Mesh output = new Mesh();
-			output.Init(mesh.Indices.Count);
+			List<Mesh> output = new List<Mesh>();
 
-			for (int i = 0; i < fcnt; ++i)
+			foreach (PackOutputList polist in packOutputs)
 			{
-				mesh.Positions.CopyFaceTo(output.Positions, i);
-				mesh.Normals.CopyFaceTo(output.Normals, i);
-				mesh.Texcrds0.CopyFaceTo(output.Texcrds0, i);
+				Mesh omesh = new Mesh();
+				omesh.Init(polist.Count * 3);
 
-				FaceUV fuv = faceuvs[i];
-				output.Texcrds1.SetFace(i, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+				for (int dst = 0; dst < polist.Count; ++dst)
+				{
+					int src = polist[dst].Input;
+
+					mesh.Positions.CopyFaceTo(omesh.Positions, src, dst);
+					mesh.Normals.CopyFaceTo(omesh.Normals, src, dst);
+					mesh.Texcrds0.CopyFaceTo(omesh.Texcrds0, src, dst);
+
+					FaceUV fuv = faceuvs[src];
+					omesh.Texcrds1.SetFace(dst, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+				}
+
+				output.Add(omesh);
 			}
 
 			return output;

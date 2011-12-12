@@ -10,7 +10,7 @@ namespace MCD
 		{
 			Mesh mesh = CreateBoxMesh(16.0f);
 			PreFaceUnwrapper unwrapper = new PreFaceUnwrapper();
-			outputs.Add(unwrapper.Unwrap(mesh, 512, 1.0f));
+			outputs.AddRange(unwrapper.Unwrap(mesh, 512, 1.0f));
 		}
 	}
 }

@@ -80,12 +80,18 @@ namespace MCD
 				}
 			}
 
-			public void CopyFaceTo(Attribute<T> dst, int faceIndex)
+			public void CopyFaceTo(Attribute<T> dst, int srcIndex, int dstIndex)
 			{
 				T a0, a1, a2;
-				this.GetFace(out a0, out a1, out a2, faceIndex);
-				dst.SetFace(faceIndex, a0, a1, a2);
+				this.GetFace(out a0, out a1, out a2, srcIndex);
+				dst.SetFace(dstIndex, a0, a1, a2);
 			}
+
+			public void CopyFaceTo(Attribute<T> dst, int faceIndex)
+			{
+				CopyFaceTo(dst, faceIndex, faceIndex);
+			}
+
 		}
 
 		public void Init(int icnt, int vcnt)

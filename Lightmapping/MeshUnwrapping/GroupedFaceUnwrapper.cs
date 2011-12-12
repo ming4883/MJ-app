@@ -13,6 +13,8 @@ namespace MCD
 			{
 				public int X, Y, Z;
 
+				public override int GetHashCode() { return base.GetHashCode(); }
+
 				public override bool  Equals(object obj)
 				{
 					VtxHash b = (VtxHash)obj;
@@ -60,9 +62,9 @@ namespace MCD
 				return commonCnt > 1;
 			}
 
-			public static bool Bounding(out Vector2 min, out Vector2 max, List<GroupedFaceUV> faceuvs, int groupid)
+			public static int Bounding(out Vector2 min, out Vector2 max, List<GroupedFaceUV> faceuvs, int groupid)
 			{
-				bool inited = false;
+				int cnt = 0;
 				min = max = Vector2.Zero;
 
 				foreach (GroupedFaceUV fuv in faceuvs)
@@ -73,10 +75,9 @@ namespace MCD
 					Vector2 mi, ma;
 					fuv.Bounding(out mi, out ma);
 
-					if (!inited)
+					if (0 == cnt)
 					{
 						min = mi; max = ma;
-						inited = true;
 					}
 					else
 					{
@@ -86,9 +87,10 @@ namespace MCD
 						max.X = Math.Max(max.X, ma.X);
 						max.Y = Math.Max(max.Y, ma.Y);
 					}
+					++cnt;
 				}
 
-				return inited;
+				return cnt;
 			}
 
 			public static void Dump(List<GroupedFaceUV> faceuvs, int groupid)
@@ -107,7 +109,13 @@ namespace MCD
 			}
 		}
 
-		public override Mesh Unwrap(Mesh mesh, int packSize, float worldScale)
+		protected struct Group
+		{
+			public Vector2 Min, Max;
+			public int Count;
+		}
+
+		public override List<Mesh> Unwrap(Mesh mesh, int packSize, float worldScale)
 		{
 			List<GroupedFaceUV> faceuvs = new List<GroupedFaceUV>();
 
@@ -142,6 +150,7 @@ namespace MCD
 
 			// group the faces
 			int gCnt = 0;
+			List<Group> groups = new List<Group>();
 			
 			for (int i = 0; i < fcnt; ++i)
 			{
@@ -172,16 +181,17 @@ namespace MCD
 
 			for (int i = 0; i < gCnt; ++i)
 			{
-				Vector2 min, max;
-				GroupedFaceUV.Bounding(out min, out max, faceuvs, i);
+				Group gp = new Group();
+				gp.Count = GroupedFaceUV.Bounding(out gp.Min, out gp.Max, faceuvs, i);
+				groups.Add(gp);
 
 				PackInput pi = new PackInput();
-				pi.Size.Width = (int)Math.Ceiling(max.X - min.X);
-				pi.Size.Height = (int)Math.Ceiling(max.Y - min.Y);
+				pi.Size.Width = (int)Math.Ceiling(gp.Max.X - gp.Min.X);
+				pi.Size.Height = (int)Math.Ceiling(gp.Max.Y - gp.Min.Y);
 				packInputs.Add(pi);
 
-				Console.Write("gp{0}: ", i);
-				GroupedFaceUV.Dump(faceuvs, i);
+				//Console.Write("gp{0}: ", i);
+				//GroupedFaceUV.Dump(faceuvs, i);
 			}
 
 			packSettings.Size.Width = packSize;
@@ -197,31 +207,51 @@ namespace MCD
 			{
 				foreach (PackOutput po in polist)
 				{
-					Vector2 min, max;
-					GroupedFaceUV.Bounding(out min, out max, faceuvs, po.Input);
+					Group gp = groups[po.Input];
 
 					foreach (GroupedFaceUV fuv in faceuvs)
 					{
 						if (fuv.GroupId != po.Input) continue;
 
-						fuv.Translate(new Vector2(po.X, po.Y) - min);
+						fuv.Translate(new Vector2(po.X, po.Y) - gp.Min);
 						fuv.Scale(scale);
 					}
 				}
 			}
 
-			// create output mesh
-			Mesh output = new Mesh();
-			output.Init(mesh.Indices.Count);
+			// create output meshes
+			List<Mesh> output = new List<Mesh>();
 
-			for (int i = 0; i < fcnt; ++i)
+			foreach (PackOutputList polist in packOutputs)
 			{
-				mesh.Positions.CopyFaceTo(output.Positions, i);
-				mesh.Normals.CopyFaceTo(output.Normals, i);
-				mesh.Texcrds0.CopyFaceTo(output.Texcrds0, i);
+				Mesh omesh = new Mesh();
 
-				GroupedFaceUV fuv = faceuvs[i];
-				output.Texcrds1.SetFace(i, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+				int ofcnt = 0;
+				for (int i = 0; i < polist.Count; ++i)
+					ofcnt += groups[polist[i].Input].Count;
+
+				omesh.Init(ofcnt * 3);
+
+				int dst = 0;
+
+				for (int i = 0; i < polist.Count; ++i)
+				{
+					for (int src = 0; src < fcnt; ++src)
+					{
+						GroupedFaceUV fuv = faceuvs[src];
+
+						if (fuv.GroupId != polist[i].Input) continue;
+
+						mesh.Positions.CopyFaceTo(omesh.Positions, src, dst);
+						mesh.Normals.CopyFaceTo(omesh.Normals, src, dst);
+						mesh.Texcrds0.CopyFaceTo(omesh.Texcrds0, src, dst);
+
+						omesh.Texcrds1.SetFace(dst, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+
+						++dst;
+					}
+				}
+				output.Add(omesh);
 			}
 
 			return output;

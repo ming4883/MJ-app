@@ -1,8 +1,9 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace MCD
 {
 	public interface IMeshUnwrapper
 	{
-		Mesh Unwrap(Mesh mesh, int packSize, float worldScale);
+		List<Mesh> Unwrap(Mesh mesh, int packSize, float worldScale);
 	}
 }
