@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using OpenTK;
+using System.Collections.Generic;
 
 namespace MCD
 {
@@ -22,11 +23,28 @@ namespace MCD
 
 				for (int j = 0; j < 3; ++j)
 				{
-					p[j].X = v[j].X * uvSize.Width;
-					p[j].Y = (1-v[j].Y) * uvSize.Height - 2;
+					p[j].X = v[j].X * uvSize.Width - 1;
+					p[j].Y = (1-v[j].Y) * uvSize.Height - 1;
 				}
 
 				g.DrawPolygon(Pens.Blue, p);
+			}
+		}
+
+		public static void DrawTexcrd1(List<Mesh> meshes, string path, int width, int height)
+		{
+			int i = 0;
+			string ext = System.IO.Path.GetExtension(path);
+
+			foreach (Mesh m in meshes)
+			{
+				using (Bitmap b = new Bitmap(width, height))
+				using (Graphics g = Graphics.FromImage(b))
+				{
+					string filename = System.IO.Path.ChangeExtension(path, string.Format("{0}{1}", ++i, ext));
+					DrawTexcrd1(m, g, new Size(width, height));
+					b.Save(filename);
+				}
 			}
 		}
 	}

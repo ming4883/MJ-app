@@ -27,6 +27,15 @@ fn exportMesh obj out_path =
 		format "% % %\n" face rnormals mtl to:out_file
 	)
 	
+	if undefined != obj.material then
+	(
+		format "%\n" obj.material.name to:out_file
+	)
+	else
+	(
+		format "no material\n" to:out_file
+	)
+	
 	-- export mapping info
 	map_cnt = meshop.getNumMaps tmesh
 	

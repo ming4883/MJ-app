@@ -162,6 +162,8 @@ namespace MCD
 
 					FaceUV fuv = faceuvs[src];
 					omesh.Texcrds1.SetFace(dst, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+
+					omesh.FaceProps[dst] = mesh.FaceProps[src];
 				}
 
 				output.Add(omesh);

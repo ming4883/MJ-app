@@ -11,6 +11,7 @@ namespace MCD
 	public class Mesh
 	{
 		List<int> indices;
+		List<int> faceProps;
 		List<Vector3> positions;
 		List<Vector3> normals;
 		List<Vector2> texcrds0;
@@ -22,6 +23,7 @@ namespace MCD
 		Attribute<Vector2> texcrds1A;
 
 		public List<int> Indices { get { return indices; } }
+		public List<int> FaceProps { get { return faceProps; } }
 		public Attribute<Vector3> Positions { get { return positionsA; } }
 		public Attribute<Vector3> Normals { get { return normalsA; } }
 		public Attribute<Vector2> Texcrds0 { get { return texcrds0A; } }
@@ -122,6 +124,10 @@ namespace MCD
 				texcrds0.Add(Vector2.Zero);
 				texcrds1.Add(Vector2.Zero);
 			}
+
+			faceProps = new List<int>(FaceCount);
+			for (int i = 0; i < FaceCount; ++i)
+				faceProps.Add(0);
 		}
 	}
 }
