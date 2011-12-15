@@ -81,6 +81,25 @@ fn addToBuilder obj builder =
 	)
 )
 
+fn copyUV msh buf mapCh =
+(
+	meshop.setMapSupport msh mapCh true
+	meshop.setNumMapVerts msh mapCh buf.Count
+	meshop.defaultMapFaces msh mapCh
+	
+	local iter = buf.GetEnumerator()
+	local vcnt = 0
+	while iter.MoveNext() do
+	(
+		local x = iter.current.X
+		local y = iter.current.Y
+		
+		vcnt = vcnt + 1
+		
+		meshop.setMapVert msh mapCh vcnt [x, y, 0]
+	)
+)
+
 fn toMaxMesh m mname =
 (
 	local vertArray = #()
@@ -88,8 +107,6 @@ fn toMaxMesh m mname =
 	
 	local iter
 	local vcnt
-	local mapCh
-	local ocnt
 	
 	iter = m.Positions.Raw.GetEnumerator()
 	vcnt = 0
@@ -114,53 +131,13 @@ fn toMaxMesh m mname =
 	meshMax.name = mname
 	meshop.setNumMaps meshMax 3 keep:false
 	
-	mapCh = 1
-	meshop.setMapSupport meshMax mapCh true
-	meshop.setNumMapVerts meshMax mapCh m.Texcrds0.Raw.Count
+	copyUV meshMax m.Texcrds0.Raw 1
+	copyUV meshMax m.Texcrds1.Raw 2
 	
-	iter = m.Texcrds0.Raw.GetEnumerator()
-	vcnt = 0
-	ocnt = 0
-	while iter.MoveNext() do
-	(
-		local x = iter.current.X
-		local y = iter.current.Y
-		
-		vcnt = vcnt + 1
-		ocnt = ocnt + 1
-		
-		meshop.setMapVert meshMax mapCh ocnt [x, y, 0]
-		
-		if vcnt == 3 then
-		(
-			meshop.setMapFace meshMax mapCh (ocnt/3) [ocnt - 2, ocnt - 1, ocnt]
-			vcnt = 0
-		)
-	)
-	
-	mapCh = 2
-	meshop.setMapSupport meshMax mapCh true
-	meshop.setNumMapVerts meshMax mapCh m.Texcrds1.Raw.Count
-	
-	iter = m.Texcrds1.Raw.GetEnumerator()
-	vcnt = 0
-	ocnt = 0
-	while iter.MoveNext() do
-	(
-		local x = iter.current.X
-		local y = iter.current.Y
-		
-		vcnt = vcnt + 1
-		ocnt = ocnt + 1
-		
-		meshop.setMapVert meshMax mapCh ocnt [x, y, 0]
-		
-		if vcnt == 3 then
-		(
-			meshop.setMapFace meshMax mapCh (ocnt/3) [ocnt - 2, ocnt - 1, ocnt]
-			vcnt = 0
-		)
-	)
+	Unwrapper = Unwrap_UVW name:"UVW"
+	Unwrapper.setApplyToWholeObject true
+	Unwrapper.setMapChannel 2
+	addModifier meshMax Unwrapper
 )
 
 fn test1 = 
@@ -183,21 +160,19 @@ fn test1 =
 	local mesh = meshbuilder.ToMesh()
 	format "final mesh:%f %v\n" mesh.FaceCount mesh.VertexCount
 	
-	
 	format "perform packing...\n"
-	local pmesh = unwrapper.Unwrap mesh 512 (1.0 / 0.5)
+	local pmesh = unwrapper.Unwrap mesh 512 (1.0 / 5.0)
 	format "output % meshes\n" pmesh.Count
 	
 	format "saving results...\n"
-	/*
-	MESHVISUALIZER = dotNetClass "MCD.MeshVisualizer"
-	MESHVISUALIZER.DrawTexcrd1 pmesh ((GetDir #export)+"/test.png") 512 512
-	*/
 	
 	local iter = pmesh.GetEnumerator()
+	i = 1
 	while iter.MoveNext() do
 	(
-		toMaxMesh iter.current "Merged"
+		local mname = "pack result "+(i as string)
+		toMaxMesh iter.current mname
+		i = i + 1
 	)
 	
 )
