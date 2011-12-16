@@ -7,6 +7,9 @@ namespace MCD
 {
 	public class GroupedFaceUnwrapper : PreFaceUnwrapper
 	{
+		public bool debug = false;
+		public float Precision = 1000;
+		
 		protected class GroupedFaceUV : FaceUV
 		{
 			public struct VtxHash
@@ -20,9 +23,15 @@ namespace MCD
 					VtxHash b = (VtxHash)obj;
 					return (X == b.X && Y == b.Y && Z == b.Z);
 				}
+
+				public override string ToString()
+				{
+					return string.Format("[{0}, {1}, {2}]", X, Y, Z);
+				}
 			}
 
 			public int GroupId = -1;
+			public int ConnectId = -1;
 			public Vector3 Normal;
 			VtxHash[] vtxHash = new VtxHash[3];
 
@@ -41,25 +50,35 @@ namespace MCD
 				vtxHash[2].Z = (int)Math.Ceiling(p2.Z * scale);
 			}
 
-			static float threshold = (float)Math.Cos(5.0);
+			static float DOT_THRESHOLD = (float)Math.Cos(5.0 / 180.0 * Math.PI);
+			static int[] e0LUT = new int[] { 0, 1, 2 };
+			static int[] e1LUT = new int[] { 1, 2, 0 };
 
 			public static bool Connected(GroupedFaceUV a, GroupedFaceUV b)
 			{
-				if (Vector3.Dot(a.Normal, b.Normal) < threshold) // non-coplanar faces
+				float dot = Vector3.Dot(a.Normal, b.Normal);
+				if (dot < DOT_THRESHOLD) // non-coplanar faces
 					return false;
 
-				int commonCnt = 0;
+				int commonEdgeCnt = 0;
 
 				for (int i = 0; i < 3; ++i)
 				{
+					VtxHash ae0 = a.vtxHash[e0LUT[i]];
+					VtxHash ae1 = a.vtxHash[e1LUT[i]];
+
 					for (int j = 0; j < 3; ++j)
 					{
-						if (a.vtxHash[i].Equals(b.vtxHash[j]))
-							++commonCnt;
+						VtxHash be0 = b.vtxHash[e0LUT[j]];
+						VtxHash be1 = b.vtxHash[e1LUT[j]];
+
+						if(	(ae0.Equals(be0) && ae1.Equals(be1))
+						||	(ae0.Equals(be1) && ae1.Equals(be0)))
+							++commonEdgeCnt;
 					}
 				}
 
-				return commonCnt > 1;
+				return commonEdgeCnt > 0;
 			}
 
 			public static int Bounding(out Vector2 min, out Vector2 max, List<GroupedFaceUV> faceuvs, int groupid)
@@ -100,7 +119,8 @@ namespace MCD
 				{
 					if (faceuvs[i].GroupId == groupid)
 					{
-						Console.Write(first ? "{0}" : ", {0}", i);
+						string fmt = first ? "{0}=>{1}" : ", {0}=>{1}";
+						Console.Write(fmt, i, faceuvs[i].ConnectId);
 						first = false;
 					}
 				}
@@ -141,9 +161,7 @@ namespace MCD
 				fuv.Texcrd[1] = tc(p1, worldScale);
 				fuv.Texcrd[2] = tc(p2, worldScale);
 				fuv.Normal = n;
-				fuv.ComputeVtxHash(p0, p1, p2, 1000);
-
-				//Console.WriteLine("{0}, {1}, {2}", fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
+				fuv.ComputeVtxHash(p0, p1, p2, Precision);
 
 				faceuvs.Add(fuv);
 			}
@@ -168,7 +186,10 @@ namespace MCD
 					if (-1 != dst.GroupId) continue; // already added to group
 
 					if (GroupedFaceUV.Connected(src, dst))
+					{
 						dst.GroupId = src.GroupId;
+						dst.ConnectId = i;
+					}
 				}
 			}
 
@@ -190,8 +211,11 @@ namespace MCD
 				pi.Size.Height = (int)Math.Ceiling(gp.Max.Y - gp.Min.Y);
 				packInputs.Add(pi);
 
-				//Console.Write("gp{0}: ", i);
-				//GroupedFaceUV.Dump(faceuvs, i);
+				if (debug)
+				{
+					Console.Write("gp{0}: ", i);
+					GroupedFaceUV.Dump(faceuvs, i);
+				}
 			}
 
 			packSettings.Size.Width = packSize;
@@ -248,7 +272,10 @@ namespace MCD
 
 						omesh.Texcrds1.SetFace(dst, fuv.Texcrd[0], fuv.Texcrd[1], fuv.Texcrd[2]);
 
-						omesh.FaceProps[dst] = mesh.FaceProps[src];
+						if(debug)
+							omesh.FaceProps[dst] = src;
+						else
+							omesh.FaceProps[dst] = mesh.FaceProps[src];
 
 						++dst;
 					}

@@ -142,6 +142,8 @@ fn toMaxMesh m mname =
 
 fn test1 = 
 (
+	format "% % %\n" units.DisplayType units.MetricType units.SystemScale
+	
 	if selection.count == 0 then
 	(
 		format "selection is empty, quit\n"
@@ -160,11 +162,11 @@ fn test1 =
 	local fmesh = meshbuilder.ToMesh()
 	format "final mesh:%f %v\n" fmesh.FaceCount fmesh.VertexCount
 	
-	local MESH_UTIL = dotNetClass "MCD.MeshUtil"
-	MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
+	-- local MESH_UTIL = dotNetClass "MCD.MeshUtil"
+	-- MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
 	format "perform packing...\n"
-	local pmesh = unwrapper.Unwrap fmesh 512 (1.0 / 0.5)
+	local pmesh = unwrapper.Unwrap fmesh 512 (1.0 / (2.0 * units.SystemScale))
 	format "output % meshes\n" pmesh.Count
 	
 	format "saving results...\n"

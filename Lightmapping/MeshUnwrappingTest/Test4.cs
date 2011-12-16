@@ -10,6 +10,7 @@ namespace MCD
 		{
 			Mesh mesh = MeshUtil.Load("Test4.data.txt");
 			GroupedFaceUnwrapper unwrapper = new GroupedFaceUnwrapper();
+			unwrapper.debug = true;
 			outputs.AddRange(unwrapper.Unwrap(mesh, 512, 1.0f / 0.5f));
 		}
 	}

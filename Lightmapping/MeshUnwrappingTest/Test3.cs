@@ -15,6 +15,7 @@ namespace MCD
 
 			Mesh mesh = CreateBoxMesh(16.0f, vtxOff);
 			GroupedFaceUnwrapper unwrapper = new GroupedFaceUnwrapper();
+			unwrapper.debug = true;
 			outputs.AddRange(unwrapper.Unwrap(mesh, 512, 1.0f));
 		}
 	}

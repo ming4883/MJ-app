@@ -16,21 +16,33 @@ namespace MCD
 
 			PointF[] p = new PointF[3];
 			Vector2[] v = new Vector2[3];
+			PointF c = PointF.Empty;
 
 			int fcnt = mesh.FaceCount;
+
+			Font fnt = new Font("Small Fonts", 7.0f, FontStyle.Bold);
 
 			for (int i = 0; i < fcnt; ++i)
 			{
 				mesh.Texcrds1.GetFace(out v[0], out v[1], out v[2], i);
 
+				c = PointF.Empty;
 				for (int j = 0; j < 3; ++j)
 				{
 					p[j].X = v[j].X * uvSize.Width - 1;
 					p[j].Y = (1-v[j].Y) * uvSize.Height - 1;
+
+					c.X += p[j].X;
+					c.Y += p[j].Y;
 				}
 
 				g.DrawPolygon(Pens.Blue, p);
+
+				c.X /= 3.0f;
+				c.Y /= 3.0f;
+				g.DrawString(mesh.FaceProps[i].ToString(), fnt, Brushes.Red, c);
 			}
+			fnt.Dispose();
 		}
 
 		public static void DrawTexcrd1(List<Mesh> meshes, string path, int width, int height)
