@@ -56,6 +56,7 @@ namespace MCD
 			listBox1.Items.Add(new Test1.Factory());
 			listBox1.Items.Add(new Test2.Factory());
 			listBox1.Items.Add(new Test3.Factory());
+			listBox1.Items.Add(new Test4.Factory());
 
 			listBox1.DoubleClick += new EventHandler(button1_Click);
 
@@ -67,7 +68,7 @@ namespace MCD
 			if (null == meshes || 0 == meshes.Count)
 				return;
 
-			MeshVisualizer.DrawTexcrd1(meshes[(int)numericUpDown1.Value], e.Graphics, panel1.Size);
+			MeshUtil.DrawTexcrd1(meshes[(int)numericUpDown1.Value], e.Graphics, panel1.Size);
 		}
 
 		private void button1_Click(object sender, EventArgs e)

@@ -89,6 +89,7 @@
     <Compile Include="Test1.cs" />
     <Compile Include="Test2.cs" />
     <Compile Include="Test3.cs" />
+    <Compile Include="Test4.cs" />
     <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +97,11 @@
       <Project>{B7B20D42-6A8C-4500-BE91-466FF6F5753B}</Project>
       <Name>MeshUnwrapping</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Test4.data.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

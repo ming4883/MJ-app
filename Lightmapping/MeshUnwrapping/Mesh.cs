@@ -32,6 +32,7 @@ namespace MCD
 		public bool Indexed { get { return null != indices; } }
 		public int FaceCount { get { return (null == indices) ? positions.Count / 3 : indices.Count / 3; } }
 		public int VertexCount { get { return (null == positions) ? 0 : positions.Count; } }
+		public int IndexCount { get { return (null == indices) ? 0 : indices.Count; } }
 
 		public class Attribute<T>
 		{

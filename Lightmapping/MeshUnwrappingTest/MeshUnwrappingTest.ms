@@ -157,11 +157,14 @@ fn test1 =
 		addToBuilder selection[i] meshbuilder
 	)
 	
-	local mesh = meshbuilder.ToMesh()
-	format "final mesh:%f %v\n" mesh.FaceCount mesh.VertexCount
+	local fmesh = meshbuilder.ToMesh()
+	format "final mesh:%f %v\n" fmesh.FaceCount fmesh.VertexCount
+	
+	local MESH_UTIL = dotNetClass "MCD.MeshUtil"
+	MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
 	format "perform packing...\n"
-	local pmesh = unwrapper.Unwrap mesh 512 (1.0 / 5.0)
+	local pmesh = unwrapper.Unwrap fmesh 512 (1.0 / 0.5)
 	format "output % meshes\n" pmesh.Count
 	
 	format "saving results...\n"
@@ -170,7 +173,7 @@ fn test1 =
 	i = 1
 	while iter.MoveNext() do
 	(
-		local mname = "pack result "+(i as string)
+		local mname = "PackResult"+(i as string)
 		toMaxMesh iter.current mname
 		i = i + 1
 	)

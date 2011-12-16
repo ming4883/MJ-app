@@ -54,7 +54,7 @@
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshBuilder.cs" />
     <Compile Include="MeshUnwrapper.cs" />
-    <Compile Include="MeshVisualizer.cs" />
+    <Compile Include="MeshUtil.cs" />
     <Compile Include="PreFaceUnwrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

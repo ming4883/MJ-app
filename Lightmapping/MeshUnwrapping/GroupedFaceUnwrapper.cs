@@ -15,10 +15,10 @@ namespace MCD
 
 				public override int GetHashCode() { return base.GetHashCode(); }
 
-				public override bool  Equals(object obj)
+				public override bool Equals(object obj)
 				{
 					VtxHash b = (VtxHash)obj;
-					return X == b.X && Y == b.Y && Z == b.Z;
+					return (X == b.X && Y == b.Y && Z == b.Z);
 				}
 			}
 
