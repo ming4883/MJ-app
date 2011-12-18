@@ -182,7 +182,32 @@ fn test1 =
 	
 )
 
+fn test2 = 
+(
+	format "% % %\n" units.DisplayType units.MetricType units.SystemScale
+	
+	if selection.count == 0 then
+	(
+		format "selection is empty, quit\n"
+		return false
+	)
+	format "performing test2()...\n"
+	
+	tmesh = editable_mesh()
+	tmesh.name = "Merged"
+	tmesh.material = multimaterial name:"MergedMaterial"
+	
+	for i = 1 to selection.count do
+	(
+		local s = snapshotAsMesh selection[i]
+		meshop.attach tmesh s attachMat:#IDToMat
+		delete s
+	)
+	
+)
+
 if dllLoaded then
 (
-	test1()
+	--test1()
+	test2()
 )
