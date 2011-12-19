@@ -370,6 +370,8 @@ fn toMaxMesh2 m refm mname =
 fn test3 = 
 (
 	format "% % %\n" units.DisplayType units.MetricType units.SystemScale
+	local pixRatio = (units.decodeValue "5cm")
+	format "%\n" pixRatio
 	local sel = selection as array
 	
 	if sel.count == 0 then
@@ -412,7 +414,7 @@ fn test3 =
 	--MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
 	format "perform packing...\n"
-	local packed = unwrapper.Unwrap fmesh 512 (1.0 / (2.0 * units.SystemScale))
+	local packed = unwrapper.Unwrap fmesh 512 (1.0 / pixRatio)
 	format "output % meshes\n" packed.Count
 	
 	format "saving results...\n"
