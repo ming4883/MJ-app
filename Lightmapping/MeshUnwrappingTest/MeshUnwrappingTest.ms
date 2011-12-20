@@ -410,8 +410,8 @@ fn test3 =
 	local fmesh = mbuilder.ToMesh()
 	format "final mesh:%f %v\n" fmesh.FaceCount fmesh.VertexCount
 	
-	--local MESH_UTIL = dotNetClass "MCD.MeshUtil"
-	--MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
+	local MESH_UTIL = dotNetClass "MCD.MeshUtil"
+	MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
 	format "perform packing...\n"
 	local packed = unwrapper.Unwrap fmesh 512 (1.0 / pixRatio)

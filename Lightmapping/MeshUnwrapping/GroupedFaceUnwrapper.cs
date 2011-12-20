@@ -167,34 +167,11 @@ namespace MCD
 			}
 
 			// group the faces
-			int gCnt = 0;
-			List<Group> groups = new List<Group>();
-			
-			for (int i = 0; i < fcnt; ++i)
-			{
-				GroupedFaceUV src = faceuvs[i];
-
-				// create a new group if needed
-				if (-1 == src.GroupId)
-					src.GroupId = gCnt++;
-
-				for (int j = 0; j < fcnt; ++j)
-				{
-					if (i == j) continue; // skip self
-
-					GroupedFaceUV dst = faceuvs[j];
-					if (-1 != dst.GroupId) continue; // already added to group
-
-					if (GroupedFaceUV.Connected(src, dst))
-					{
-						dst.GroupId = src.GroupId;
-						dst.ConnectId = i;
-					}
-				}
-			}
+			int gCnt = CreateGroups(faceuvs);
 
 			Console.WriteLine("{0} faces created {1} groups", fcnt, gCnt);
 
+			List<Group> groups = new List<Group>();
 			// packing
 			PackSettings packSettings = new PackSettings();
 			List<PackOutputList> packOutputs = new List<PackOutputList>();
@@ -284,6 +261,47 @@ namespace MCD
 			}
 
 			return output;
+		}
+
+		private static int CreateGroups(List<GroupedFaceUV> faceuvs)
+		{
+			int fcnt = faceuvs.Count;
+			int gCnt = 0;
+
+			for (int i = 0; i < fcnt; ++i)
+			{
+				GroupedFaceUV src = faceuvs[i];
+
+				for (int j = 0; j < fcnt; ++j)
+				{
+					if (i == j) continue; // skip self
+
+					GroupedFaceUV dst = faceuvs[j];
+					//if (-1 != dst.GroupId) continue; // already added to group
+
+					if (GroupedFaceUV.Connected(src, dst))
+					{
+						if (-1 == dst.GroupId) // dst does not belongs to any group
+						{
+							if (-1 == src.GroupId) // create a new group if needed
+								src.GroupId = gCnt++;
+
+							dst.GroupId = src.GroupId;
+							dst.ConnectId = i;
+						}
+						else // dst is already grouped
+						{
+							src.GroupId = dst.GroupId;
+							src.ConnectId = j;
+						}
+					}
+				}
+
+				if (-1 == src.GroupId) // create a new group if needed
+					src.GroupId = gCnt++;
+			}
+
+			return gCnt;
 		}
 	}
 }
