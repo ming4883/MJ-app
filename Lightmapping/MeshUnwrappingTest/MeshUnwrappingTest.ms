@@ -389,15 +389,19 @@ fn test3 =
 		return false
 	)
 	
+	local console = dotNetClass "System.Console"
+	local consoleView = dotNetObject "MCD.ConsoleViewer"
+	consoleView.Display()
+	
 	local mapSize = dlg.MapSize
 	local pixRatio = (units.decodeValue dlg.PixelSizeWithUnits)
-	format "pixRatio=%\n" pixRatio
+	console.Write "pixRatio={0}\n" (pixRatio as string)
 	
 	local merged = undefined
 	
 	for i = 1 to sel.count do
 	(
-		format "processing %\n" sel[i]
+		console.Write "processing {0}\n" (sel[i] as string)
 		
 		if canConvertTo sel[i] Editable_Mesh then
 		(
@@ -416,11 +420,11 @@ fn test3 =
 	
 	if undefined == merged then
 	(
-		format "Merged is undefined, aborted!\n"
+		console.Write "Merged is undefined, aborted!\n"
 		return false
 	)
 	
-	format "% %\n" merged.max merged.min
+	console.Write "{0} {1}\n" (merged.max as string) (merged.min as string)
 	
 	local unwrapper = (dotNetObject "MCD.GroupedFaceUnwrapper")
 	local mbuilder = (dotNetObject "MCD.MeshBuilder")
@@ -428,16 +432,16 @@ fn test3 =
 	addToMeshBuilder2 merged mbuilder
 	
 	local fmesh = mbuilder.ToMesh()
-	format "final mesh:%f %v\n" fmesh.FaceCount fmesh.VertexCount
+	console.Write "final mesh:f{0} v{1}\n" (fmesh.FaceCount as string) (fmesh.VertexCount as string)
 	
 	local MESH_UTIL = dotNetClass "MCD.MeshUtil"
 	MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
-	format "perform packing...\n"
+	console.Write "perform packing...\n"
 	local packed = unwrapper.Unwrap fmesh mapSize (1.0 / pixRatio)
-	format "output % meshes\n" packed.Count
+	console.Write "output {0} meshes\n" (packed.Count as string)
 	
-	format "saving results...\n"
+	console.Write "saving results...\n"
 	
 	for i = 1 to packed.Count do
 	(
@@ -450,7 +454,8 @@ fn test3 =
 	-- merged is no longer needed
 	delete merged
 	
-	format "done!\n"
+	console.Write "done!\n"
+
 	return true
 )
 

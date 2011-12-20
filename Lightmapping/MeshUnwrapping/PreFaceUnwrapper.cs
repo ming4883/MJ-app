@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using OpenTK;
 
 namespace MCD
@@ -74,6 +75,22 @@ namespace MCD
 					return Z_MAJOR;
 			}
 		}
+
+		Stopwatch stopwatch = new Stopwatch();
+
+		protected void BeginEvent()
+		{
+			//stopwatch.Reset();
+			stopwatch.Start();
+		}
+
+		protected void EndEvent(string evt)
+		{
+			stopwatch.Stop();
+
+			Console.WriteLine("***** {0}  {1}ms", evt, stopwatch.ElapsedMilliseconds);
+		}
+
 
 		public virtual List<Mesh> Unwrap(Mesh mesh, int packSize, float worldScale)
 		{

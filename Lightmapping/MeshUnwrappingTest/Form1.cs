@@ -14,35 +14,6 @@ namespace MCD
 	{
 		List<Mesh> meshes = null;
 
-		public class TextBoxStreamWriter : TextWriter
-		{
-			RichTextBox _output = null;
-
-			public TextBoxStreamWriter(RichTextBox output)
-			{
-				_output = output;
-			}
-
-			public override void Write(char value)
-			{
-				//base.Write(value);
-				if (value == '\r')
-					return;
-
-				_output.BeginInvoke(new MethodInvoker(delegate()
-				{
-					_output.AppendText(value.ToString());
-					_output.Select(_output.Text.Length - 1, 0);
-					_output.ScrollToCaret();
-				}));
-			}
-
-			public override Encoding Encoding
-			{
-				get { return System.Text.Encoding.UTF8; }
-			}
-		}
-
 		public Form1()
 		{
 			InitializeComponent();
@@ -61,7 +32,7 @@ namespace MCD
 
 			listBox1.DoubleClick += new EventHandler(button1_Click);
 
-			Console.SetOut(new TextBoxStreamWriter(logger));
+			new TextBoxStreamWriter(logger).Set();
 		}
 
 		void panel1_Paint(object sender, PaintEventArgs e)

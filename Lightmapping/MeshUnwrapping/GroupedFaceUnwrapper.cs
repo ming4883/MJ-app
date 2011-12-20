@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK;
-using System.Drawing;
 
 namespace MCD
 {
@@ -139,6 +138,8 @@ namespace MCD
 		{
 			List<GroupedFaceUV> faceuvs = new List<GroupedFaceUV>();
 
+			BeginEvent();
+
 			int fcnt = mesh.FaceCount;
 			for (int i = 0; i < fcnt; ++i)
 			{
@@ -166,13 +167,22 @@ namespace MCD
 				faceuvs.Add(fuv);
 			}
 
+			EndEvent("Generate faceuvs");
+
 			// group the faces
+			BeginEvent();
+
 			int gCnt = CreateGroups(faceuvs);
 
 			Console.WriteLine("{0} faces created {1} groups", fcnt, gCnt);
 
 			List<Group> groups = new List<Group>();
+
+			EndEvent("Group faceuvs");
+
 			// packing
+			BeginEvent();
+
 			PackSettings packSettings = new PackSettings();
 			List<PackOutputList> packOutputs = new List<PackOutputList>();
 			List<PackInput> packInputs = new List<PackInput>();
@@ -200,8 +210,17 @@ namespace MCD
 			packSettings.Border = 1;
 			Vector2 scale = new Vector2(1.0f / packSize, 1.0f / packSize);
 
+			EndEvent("Prepare pack inputs");
+
+
+			BeginEvent();
+
 			JimScottPacker packer = new JimScottPacker();
 			packer.Pack(packSettings, packInputs, packOutputs);
+
+			EndEvent("Packing");
+
+			BeginEvent();
 
 			// convert pack outputs back to faceuv
 			foreach (PackOutputList polist in packOutputs)
@@ -259,6 +278,8 @@ namespace MCD
 				}
 				output.Add(omesh);
 			}
+
+			EndEvent("Prepare pack outputs");
 
 			return output;
 		}
