@@ -40,6 +40,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -54,7 +55,9 @@
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshBuilder.cs" />
     <Compile Include="MeshUnwrapper.cs" />
-    <Compile Include="MeshUtil.cs" />
+    <Compile Include="MeshUtil.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PreFaceUnwrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

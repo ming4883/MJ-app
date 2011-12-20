@@ -277,7 +277,8 @@ namespace MCD
 					if (i == j) continue; // skip self
 
 					GroupedFaceUV dst = faceuvs[j];
-					//if (-1 != dst.GroupId) continue; // already added to group
+					if (-1 != dst.GroupId && -1 != src.GroupId)
+						continue; // already added to group
 
 					if (GroupedFaceUV.Connected(src, dst))
 					{

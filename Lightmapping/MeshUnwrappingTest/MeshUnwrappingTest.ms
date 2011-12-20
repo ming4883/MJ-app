@@ -196,6 +196,7 @@ fn test1 =
 		mmesh.material = merged.material
 	)
 	
+	return true
 )
 
 fn test2 = 
@@ -233,6 +234,8 @@ fn test2 =
 	
 	-- if undefined != target then
 	--	delete target
+	
+	return true
 )
 
 fn addToMeshBuilder2 obj builder =
@@ -369,9 +372,6 @@ fn toMaxMesh2 m refm mname =
 
 fn test3 = 
 (
-	format "% % %\n" units.DisplayType units.MetricType units.SystemScale
-	local pixRatio = (units.decodeValue "5cm")
-	format "%\n" pixRatio
 	local sel = selection as array
 	
 	if sel.count == 0 then
@@ -379,7 +379,19 @@ fn test3 =
 		format "selection is empty, quit\n"
 		return false
 	)
+	
 	format "performing test3()...\n"
+	
+	local dlg = dotNetObject "MCD.PackInputDialog"
+	if false == dlg.DoModal() then
+	(
+		format "user aborted!\n"
+		return false
+	)
+	
+	local mapSize = dlg.MapSize
+	local pixRatio = (units.decodeValue dlg.PixelSizeWithUnits)
+	format "pixRatio=%\n" pixRatio
 	
 	local merged = undefined
 	
@@ -402,6 +414,14 @@ fn test3 =
 		)
 	)
 	
+	if undefined == merged then
+	(
+		format "Merged is undefined, aborted!\n"
+		return false
+	)
+	
+	format "% %\n" merged.max merged.min
+	
 	local unwrapper = (dotNetObject "MCD.GroupedFaceUnwrapper")
 	local mbuilder = (dotNetObject "MCD.MeshBuilder")
 	
@@ -414,7 +434,7 @@ fn test3 =
 	MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
 	
 	format "perform packing...\n"
-	local packed = unwrapper.Unwrap fmesh 512 (1.0 / pixRatio)
+	local packed = unwrapper.Unwrap fmesh mapSize (1.0 / pixRatio)
 	format "output % meshes\n" packed.Count
 	
 	format "saving results...\n"
@@ -428,7 +448,10 @@ fn test3 =
 	)
 	
 	-- merged is no longer needed
-	if undefined != merged then ( delete merged )
+	delete merged
+	
+	format "done!\n"
+	return true
 )
 
 
