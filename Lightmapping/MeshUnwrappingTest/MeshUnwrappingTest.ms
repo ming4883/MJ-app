@@ -224,10 +224,11 @@ fn test3 =
 		
 		console.Write "perform packing...\n"
 		unwrapper.Border = dlg.BorderSize
-		local packed = unwrapper.Unwrap fmesh mapSize (1.0 / pixRatio)
+		local packed = unwrapper.Unwrap fmesh (mapSize / 2) (1.0 / pixRatio)
 		
-		mapSize = unwrapper.OutputSize
-		console.Write "output cnt={0} size={1}\n" (packed.Count as string) (mapSize as string)
+		if mapSize > unwrapper.OutputSize then ( mapSize = unwrapper.OutputSize )
+		
+		console.Write "output cnt={0} opt-size={1}\n" (packed.Count as string) (unwrapper.OutputSize as string)
 		
 		undo on
 		(
@@ -248,7 +249,13 @@ fn test3 =
 		undo off
 		(
 			-- merged is no longer needed
-			delete merged
+			try
+			(
+				delete merged
+			)
+			catch
+			(
+			)
 		)
 		
 		console.Write "done!\n"

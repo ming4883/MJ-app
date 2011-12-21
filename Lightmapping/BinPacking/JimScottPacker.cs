@@ -136,7 +136,7 @@ namespace MCD
 				Size sz = inputs[i].Size;
 				if (sz.Width > settings.Size.Width || sz.Height > settings.Size.Height)
 				{
-					Console.WriteLine("warning: input {0}:{1} is too large!", i, sz);
+					//Console.WriteLine("warning: input {0}:{1} is too large!", i, sz);
 					continue;
 				}
 
