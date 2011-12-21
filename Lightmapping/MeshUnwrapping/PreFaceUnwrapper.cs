@@ -7,6 +7,9 @@ namespace MCD
 {
 	public class PreFaceUnwrapper : IMeshUnwrapper
 	{
+		public int Border = 1;
+		public bool profiling = false;
+		
 		protected delegate Vector2 TC(Vector3 p, float scale);
 
 		protected static TC X_MAJOR = delegate(Vector3 p, float scale) { return new Vector2(p.Z * scale, p.Y * scale); };
@@ -80,12 +83,15 @@ namespace MCD
 
 		protected void BeginEvent()
 		{
+			if (!profiling) return;
 			//stopwatch.Reset();
 			stopwatch.Start();
 		}
 
 		protected void EndEvent(string evt)
 		{
+			if (!profiling) return;
+
 			stopwatch.Stop();
 
 			Console.WriteLine("***** {0}  {1}ms", evt, stopwatch.ElapsedMilliseconds);
@@ -143,7 +149,7 @@ namespace MCD
 
 			packSettings.Size.Width = packSize;
 			packSettings.Size.Height = packSize;
-			packSettings.Border = 1;
+			packSettings.Border = Border;
 			Vector2 scale = new Vector2(1.0f / packSize, 1.0f / packSize);
 
 			JimScottPacker packer = new JimScottPacker();

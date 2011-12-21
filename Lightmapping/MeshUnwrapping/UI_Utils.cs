@@ -1,150 +1,12 @@
-﻿
-using System.Windows.Forms;
+﻿using System;
 using System.Drawing;
-using System;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+
 namespace MCD
 {
-	public class PackInputDialog : Form
-	{
-		private void initControl(Control c)
-		{
-			c.Dock = DockStyle.Left;
-		}
-
-		private void initPanel(Panel p)
-		{
-			p.Dock = DockStyle.Top;
-			p.Height = 25;
-		}
-
-		private Label newLabel(string text)
-		{
-			Label lbl = new Label();
-			initControl(lbl);
-			lbl.Text = text;
-			lbl.Width = 100;
-			lbl.TextAlign = ContentAlignment.MiddleLeft;
-			return lbl;
-		}
-
-		private ComboBox newComboBox(object[] items, object selected)
-		{
-			ComboBox cb = new ComboBox();
-			initControl(cb);
-			cb.DropDownStyle = ComboBoxStyle.DropDownList;
-			cb.Items.AddRange(items);
-			cb.SelectedItem = selected;
-			cb.Width = 60;
-			return cb;
-		}
-
-		private NumericUpDown newUpDown(int min, int max, int inc, int val)
-		{
-			NumericUpDown ud = new NumericUpDown();
-			initControl(ud);
-			ud.Minimum = min;
-			ud.Maximum = max;
-			ud.Value = val;
-			ud.Increment = inc;
-			ud.Width = 60;
-
-			return ud;
-		}
-
-		private Button newResultButton(string text, DialogResult ret)
-		{
-			Button btn = new Button();
-			btn.Dock = DockStyle.Right;
-			btn.Text = text;
-			btn.DialogResult = ret;
-			btn.Width = 60;
-
-			return btn;
-		}
-
-		ComboBox mapSize;
-
-		private Panel newMapSizePanel()
-		{
-			Panel p = new Panel();
-			initPanel(p);
-
-			mapSize = newComboBox(new object[] { "128", "256", "512", "1024", "2048" }, "512");
-			p.Controls.Add(mapSize);
-			p.Controls.Add(newLabel("Texture Size = "));
-
-			return p;
-		}
-
-		ComboBox pixelSizeUnit;
-		NumericUpDown pixelSize;
-
-		private Panel newPixelSizePanel()
-		{
-			Panel p = new Panel();
-			initPanel(p);
-
-			pixelSizeUnit = newComboBox(new object[] { "mm", "cm", "m" }, "m");
-			pixelSize = newUpDown(0, 1000, 1, 2);
-
-			p.Controls.Add(pixelSizeUnit);
-			p.Controls.Add(pixelSize);
-			p.Controls.Add(newLabel("1 Pixel = "));
-			return p;
-		}
-
-		private Panel newResultButtonPanel()
-		{
-			Panel p = new Panel();
-			initPanel(p);
-			p.Dock = DockStyle.Bottom;
-
-			p.Controls.Add(newResultButton("OK", DialogResult.OK));
-			p.Controls.Add(newResultButton("Cancel", DialogResult.Cancel));
-			return p;
-		}
-
-		public PackInputDialog()
-		{
-			SuspendLayout();
-
-			Size = new Size(300, 150);
-			StartPosition = FormStartPosition.CenterParent;
-			FormBorderStyle = FormBorderStyle.FixedToolWindow;
-			MinimizeBox = false;
-			MaximizeBox = false;
-			Padding = new Padding(5);
-
-			Controls.Add(newResultButtonPanel());
-			Controls.Add(newPixelSizePanel());
-			Controls.Add(newMapSizePanel());
-
-			ResumeLayout(true);
-		}
-
-		public int MapSize
-		{
-			get { return int.Parse(mapSize.SelectedItem.ToString()); }
-		}
-
-		public float PixelSize
-		{
-			get { return (float)pixelSize.Value; }
-		}
-
-		public string PixelSizeWithUnits
-		{
-			get { return string.Format("{0}{1}", pixelSize.Value, pixelSizeUnit.SelectedItem); }
-		}
-
-		public bool DoModal()
-		{
-			return DialogResult.OK == ShowDialog(Form.ActiveForm);
-		}
-	}
-
 	public class TextBoxStreamWriter : TextWriter
 	{
 		RichTextBox _output = null;
@@ -204,30 +66,201 @@ namespace MCD
 		}
 	}
 
-	public class ConsoleViewer : Form
+	public class PackDialog : Form
 	{
+		ComboBox mapSize;
+		int mapSizeVal = 256;
+		
+		ComboBox pixelSizeUnit;
+		string pixelSizeUnitVal = "cm";
+
+		NumericUpDown pixelSize;
+		float pixelSizeVal = 20;
+
+		TextBox outputName;
+		string outputNameVal = "PackResult";
+
+		NumericUpDown borderSize;
+		int borderSizeVal = 1;
+
+		RichTextBox logger;
+		
 		TextBoxStreamWriter writer;
 
-		public ConsoleViewer()
+		private void initControl(Control c)
 		{
-			SuspendLayout();
+			c.Dock = DockStyle.Left;
+		}
 
-			Text = "System.Console";
-			Size = new Size(600, 250);
-			StartPosition = FormStartPosition.CenterScreen;
-			FormBorderStyle = FormBorderStyle.SizableToolWindow;
-			MinimizeBox = false;
-			MaximizeBox = false;
-			Padding = new Padding(2);
+		private void initPanel(Panel p)
+		{
+			p.Dock = DockStyle.Top;
+			p.Height = 25;
+		}
 
-			RichTextBox rtb = new RichTextBox();
-			rtb.Dock = DockStyle.Fill;
-			Controls.Add(rtb);
+		private Label newLabel(string text)
+		{
+			Label lbl = new Label();
+			initControl(lbl);
+			lbl.Text = text;
+			lbl.Width = 100;
+			lbl.TextAlign = ContentAlignment.MiddleLeft;
+			return lbl;
+		}
 
-			writer = new TextBoxStreamWriter(rtb);
-			writer.Set();
+		private ComboBox newComboBox(object[] items, object selected)
+		{
+			ComboBox cb = new ComboBox();
+			initControl(cb);
+			cb.DropDownStyle = ComboBoxStyle.DropDownList;
+			cb.Items.AddRange(items);
+			cb.SelectedItem = selected;
+			cb.Width = 60;
+			return cb;
+		}
 
-			ResumeLayout(true);
+		private NumericUpDown newUpDown(int min, int max, int inc, int val)
+		{
+			NumericUpDown ud = new NumericUpDown();
+			initControl(ud);
+			ud.Minimum = min;
+			ud.Maximum = max;
+			ud.Value = val;
+			ud.Increment = inc;
+			ud.Width = 60;
+
+			return ud;
+		}
+
+		private Button newResultButton(string text, DialogResult ret)
+		{
+			Button btn = new Button();
+			btn.Dock = DockStyle.Right;
+			btn.Text = text;
+			btn.DialogResult = ret;
+			btn.Width = 60;
+
+			return btn;
+		}
+
+		private TextBox newTextBox(string text)
+		{
+			TextBox tb = new TextBox();
+			initControl(tb);
+			tb.Text = text;
+			tb.Width = 100;
+			tb.Multiline = false;
+			tb.ReadOnly = false;
+			return tb;
+		}
+
+		private Panel newMapSizePanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+
+			p.Controls.Add(newLabel("pixels"));
+			p.Controls.Add(mapSize = newComboBox(new object[] { "16", "32", "64", "128", "256", "512", "1024", "2048" }, mapSizeVal.ToString()));
+			p.Controls.Add(newLabel("Texture Size = "));
+
+			mapSize.SelectedIndexChanged += delegate(object s, EventArgs e)
+			{
+				int.TryParse(mapSize.SelectedItem.ToString(), out mapSizeVal);
+			};
+
+			return p;
+		}
+
+		private Panel newPixelSizePanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+
+			p.Controls.Add(pixelSizeUnit = newComboBox(new object[] { "mm", "cm", "m" }, pixelSizeUnitVal));
+			p.Controls.Add(pixelSize = newUpDown(0, 1000, 1, (int)pixelSizeVal));
+			p.Controls.Add(newLabel("Pixel Size = "));
+
+			pixelSize.ValueChanged += delegate(object s, EventArgs e)
+			{
+				pixelSizeVal = (float)pixelSize.Value;
+			};
+
+			pixelSizeUnit.SelectedIndexChanged += delegate(object s, EventArgs e)
+			{
+				pixelSizeUnitVal = pixelSizeUnit.SelectedItem.ToString();
+			};
+
+			return p;
+		}
+
+		private Panel newOutputNamePanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+
+			p.Controls.Add(outputName = newTextBox(outputNameVal));
+			p.Controls.Add(newLabel("Output Name = "));
+
+			outputName.TextChanged += delegate(object s, EventArgs e)
+			{
+				outputNameVal = outputName.Text;
+			};
+
+			return p;
+		}
+
+		private Panel newBorderSizePanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+
+			p.Controls.Add(newLabel("pixels"));
+			p.Controls.Add(borderSize = newUpDown(1, 16, 1, borderSizeVal));
+			p.Controls.Add(newLabel("Border = "));
+
+			borderSize.ValueChanged += delegate(object s, EventArgs e)
+			{
+				borderSizeVal = (int)borderSize.Value;
+			};
+
+			return p;
+		}
+
+		private Panel newButtonPanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+			p.Dock = DockStyle.Bottom;
+
+			Button btn;
+
+			p.Controls.Add(btn = newResultButton("Pack", DialogResult.None));
+			//p.Controls.Add(newResultButton("Close", DialogResult.OK));
+
+			btn.Click += delegate(object s, EventArgs e)
+			{
+				if (null == Pack) return;
+
+				Enabled = false;
+				logger.Clear();
+
+				ThreadPool.QueueUserWorkItem(new WaitCallback(delegate(object h)
+				{
+					Pack(this, null);
+					Invoke(new MethodInvoker(delegate() { Enabled = true; }));
+				}));
+			};
+			
+			return p;
+		}
+
+		private RichTextBox newLogger()
+		{
+			RichTextBox r = new RichTextBox();
+			r.Dock = DockStyle.Fill;
+			r.BorderStyle = BorderStyle.Fixed3D;
+			r.ReadOnly = true;
+			return r;
 		}
 
 		protected override void OnFormClosed(FormClosedEventArgs e)
@@ -236,9 +269,46 @@ namespace MCD
 			base.OnFormClosed(e);
 		}
 
-		public void Display()
+		public PackDialog()
 		{
-			Show(Form.ActiveForm);
+			SuspendLayout();
+
+			Size = new Size(600, 350);
+			StartPosition = FormStartPosition.CenterScreen;
+			FormBorderStyle = FormBorderStyle.FixedToolWindow;
+			MinimizeBox = false;
+			MaximizeBox = false;
+			Padding = new Padding(5);
+
+			Controls.Add(logger = newLogger());
+			Controls.Add(newButtonPanel());
+			Controls.Add(newBorderSizePanel());
+			Controls.Add(newPixelSizePanel());
+			Controls.Add(newMapSizePanel());
+			Controls.Add(newOutputNamePanel());
+
+			ResumeLayout(true);
+
+			writer = new TextBoxStreamWriter(logger);
+			writer.Set();
+		}
+
+		public event EventHandler<EventArgs> Pack;
+
+		public int MapSize { get { return mapSizeVal; } }
+
+		public float PixelSize { get { return pixelSizeVal; } }
+
+		public string PixelSizeWithUnits { get { return string.Format("{0}{1}", pixelSizeVal, pixelSizeUnitVal); } }
+
+		public int BorderSize { get { return borderSizeVal; } }
+
+		public string OutputName { get { return outputNameVal; } }
+
+		public bool DoModel()
+		{
+			ShowDialog(Form.ActiveForm);
+			return true;
 		}
 	}
 }

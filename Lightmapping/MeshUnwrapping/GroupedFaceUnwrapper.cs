@@ -8,6 +8,8 @@ namespace MCD
 	{
 		public bool debug = false;
 		public float Precision = 1000;
+		public bool SingleMeshOutput = true;
+		public int OutputSize = 0;
 		
 		protected class GroupedFaceUV : FaceUV
 		{
@@ -204,23 +206,37 @@ namespace MCD
 					GroupedFaceUV.Dump(faceuvs, i);
 				}
 			}
-
-			packSettings.Size.Width = packSize;
-			packSettings.Size.Height = packSize;
-			packSettings.Border = 1;
-			Vector2 scale = new Vector2(1.0f / packSize, 1.0f / packSize);
-
+			
 			EndEvent("Prepare pack inputs");
-
 
 			BeginEvent();
 
-			JimScottPacker packer = new JimScottPacker();
-			packer.Pack(packSettings, packInputs, packOutputs);
+			bool ok = false;
+
+			do
+			{
+				packSettings.Size.Width = packSize;
+				packSettings.Size.Height = packSize;
+				packSettings.Border = Border;
+				
+				packOutputs.Clear();
+
+				JimScottPacker packer = new JimScottPacker();
+				packer.Pack(packSettings, packInputs, packOutputs);
+
+				if (SingleMeshOutput)
+				{
+					ok = packOutputs.Count == 1;
+					if (!ok) packSize = packSize * 2;
+				}
+
+			} while (SingleMeshOutput && !ok);
 
 			EndEvent("Packing");
 
 			BeginEvent();
+
+			Vector2 scale = new Vector2(1.0f / packSize, 1.0f / packSize);
 
 			// convert pack outputs back to faceuv
 			foreach (PackOutputList polist in packOutputs)
@@ -278,6 +294,8 @@ namespace MCD
 				}
 				output.Add(omesh);
 			}
+
+			OutputSize = packSize;
 
 			EndEvent("Prepare pack outputs");
 
