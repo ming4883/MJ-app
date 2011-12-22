@@ -261,11 +261,27 @@ fn test3 =
 		console.Write "done!\n"
 	)
 	
+	fn onActivated a b =
+	(
+		-- format "PreActive: accel state %\n" enableAccelerators
+		enableAccelerators = false
+		-- format "PostActive: accel state %\n" enableAccelerators
+	)
+	
+	fn onDeactivated a b =
+	(
+		-- format "PreDeactive: accel state %\n" enableAccelerators
+		enableAccelerators = true
+		-- format "PostDeactive: accel state %\n" enableAccelerators
+	)
+	
 	format "performing test3()...\n"
 	
 	dlg = dotNetObject "MCD.PackDialog"
 	dlg.Text = "Lightmap Packing"
 	dotNet.addEventHandler dlg "Pack" onPack
+	dotNet.addEventHandler dlg "Activated" onActivated
+	dotNet.addEventHandler dlg "Deactivate" onDeactivated
 	dlg.DoModel()
 	
 	return true

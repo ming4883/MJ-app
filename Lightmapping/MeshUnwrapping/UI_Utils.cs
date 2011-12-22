@@ -307,7 +307,7 @@ namespace MCD
 
 		public bool DoModel()
 		{
-			ShowDialog(Form.ActiveForm);
+			Show(Form.ActiveForm);
 			return true;
 		}
 	}
