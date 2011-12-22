@@ -84,6 +84,8 @@ namespace MCD
 		int borderSizeVal = 1;
 
 		RichTextBox logger;
+
+		Label info;
 		
 		TextBoxStreamWriter writer;
 
@@ -119,15 +121,18 @@ namespace MCD
 			return cb;
 		}
 
-		private NumericUpDown newUpDown(int min, int max, int inc, int val)
+		private NumericUpDown newUpDown(float min, float max, float inc, float val)
 		{
 			NumericUpDown ud = new NumericUpDown();
 			initControl(ud);
-			ud.Minimum = min;
-			ud.Maximum = max;
-			ud.Value = val;
-			ud.Increment = inc;
+			ud.Minimum = (decimal)min;
+			ud.Maximum = (decimal)max;
+			ud.Value = (decimal)val;
+			ud.Increment = (decimal)inc;
 			ud.Width = 60;
+
+			if (inc < 1)
+				ud.DecimalPlaces = 1;
 
 			return ud;
 		}
@@ -177,7 +182,7 @@ namespace MCD
 			initPanel(p);
 
 			p.Controls.Add(pixelSizeUnit = newComboBox(new object[] { "mm", "cm", "m" }, pixelSizeUnitVal));
-			p.Controls.Add(pixelSize = newUpDown(0, 1000, 1, (int)pixelSizeVal));
+			p.Controls.Add(pixelSize = newUpDown(0, 1000, 0.1f, (int)pixelSizeVal));
 			p.Controls.Add(newLabel("Pixel Size = "));
 
 			pixelSize.ValueChanged += delegate(object s, EventArgs e)
@@ -190,6 +195,20 @@ namespace MCD
 				pixelSizeUnitVal = pixelSizeUnit.SelectedItem.ToString();
 			};
 
+			return p;
+		}
+
+		private Panel newInfoPanel()
+		{
+			Panel p = new Panel();
+			initPanel(p);
+			//p.Height = 50;
+
+			p.Controls.Add(info = new Label());
+			info.AutoSize = false;
+			info.Dock = DockStyle.Fill;
+			info.BorderStyle = BorderStyle.FixedSingle;
+			info.TextAlign = ContentAlignment.TopLeft;
 			return p;
 		}
 
@@ -260,6 +279,7 @@ namespace MCD
 			r.Dock = DockStyle.Fill;
 			r.BorderStyle = BorderStyle.Fixed3D;
 			r.ReadOnly = true;
+
 			return r;
 		}
 
@@ -282,6 +302,7 @@ namespace MCD
 
 			Controls.Add(logger = newLogger());
 			Controls.Add(newButtonPanel());
+			Controls.Add(newInfoPanel());
 			Controls.Add(newBorderSizePanel());
 			Controls.Add(newPixelSizePanel());
 			Controls.Add(newMapSizePanel());
@@ -304,6 +325,34 @@ namespace MCD
 		public int BorderSize { get { return borderSizeVal; } }
 
 		public string OutputName { get { return outputNameVal; } }
+
+		public string Info
+		{
+			set
+			{
+				Invoke(new MethodInvoker(delegate() { info.Text = value; }));
+			}
+		}
+
+		public void SetInfo(string fmt, object arg0)
+		{
+			Info = string.Format(fmt, arg0);
+		}
+
+		public void SetInfo(string fmt, object arg0, object arg1)
+		{
+			Info = string.Format(fmt, arg0, arg1);
+		}
+
+		public void SetInfo(string fmt, object arg0, object arg1, object arg2)
+		{
+			Info = string.Format(fmt, arg0, arg1, arg2);
+		}
+
+		public void SetInfo(string fmt, object arg0, object arg1, object arg2, object arg3)
+		{
+			Info = string.Format(fmt, arg0, arg1, arg2, arg3);
+		}
 
 		public bool DoModel()
 		{

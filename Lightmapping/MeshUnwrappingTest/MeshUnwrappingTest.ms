@@ -161,6 +161,34 @@ fn setupRTT tmesh mapsize =
 
 dlg = undefined
 
+fn onMaxSelectionSetChanged = 
+(
+	if undefined == dlg then ( return false )
+	
+	if selection.count == 0 then (
+		dlg.Info = ""
+		return false
+	)
+	
+	local gmin = selection[1].min
+	local gmax = selection[1].max
+	
+	for i = 2 to selection.count do
+	(
+		if gmin.x > selection[i].min.x then ( gmin.x = selection[i].min.x )
+		if gmin.y > selection[i].min.y then ( gmin.y = selection[i].min.y )
+		if gmin.z > selection[i].min.z then ( gmin.z = selection[i].min.z )
+		
+		if gmax.x < selection[i].max.x then ( gmax.x = selection[i].max.x )
+		if gmax.y < selection[i].max.y then ( gmax.y = selection[i].max.y )
+		if gmax.z < selection[i].max.z then ( gmax.z = selection[i].max.z )
+	)
+	
+	local sz = [gmax.x - gmin.x, gmax.y - gmin.y, gmax.z - gmin.z]
+	local szstr = (units.formatValue sz.x) + ", " + (units.formatValue sz.y) + ", " + (units.formatValue sz.z)
+	dlg.SetInfo "Selection Size: {0}" szstr
+)
+
 fn test3 = 
 (
 	fn onPack a b = 
@@ -276,6 +304,9 @@ fn test3 =
 	)
 	
 	format "performing test3()...\n"
+	
+	callbacks.removeScripts #selectionSetChanged id:#mcdPack
+	callbacks.addScript #selectionSetChanged "onMaxSelectionSetChanged()" id:#mcdPack
 	
 	dlg = dotNetObject "MCD.PackDialog"
 	dlg.Text = "Lightmap Packing"
