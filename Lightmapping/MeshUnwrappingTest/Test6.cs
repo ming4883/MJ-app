@@ -9,12 +9,12 @@ namespace MCD
 
 		public override void Run(List<Mesh> outputs)
 		{
-			PackDialog dlg = new PackDialog();
+			LightmapPackDialog dlg = new LightmapPackDialog();
 			dlg.Pack += delegate(object s, EventArgs e)
 			{
 				Console.WriteLine("{0}; map size: {1};  pixel size: {2}; border size: {3}", dlg.OutputName, dlg.MapSize, dlg.PixelSizeWithUnits, dlg.BorderSize);
 			};
-			dlg.DoModel();
+			dlg.Show();
 		}
 	}
 }

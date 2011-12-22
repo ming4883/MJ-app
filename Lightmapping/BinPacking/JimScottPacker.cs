@@ -19,7 +19,7 @@ namespace MCD
 			public int Parent = -1;
 			public int LeftChild = -1;
 			public int RightChild = -1;
-
+			
 			public Node(Rectangle rect)
 			{
 				Rect = rect;
@@ -105,6 +105,7 @@ namespace MCD
 		}
 
 		public bool AllowRotate = false;
+		public bool debug = false;
 		
 		public void Pack(PackSettings settings, List<PackInput> inputs, List<PackOutputList> outputs)
 		{
@@ -136,7 +137,8 @@ namespace MCD
 				Size sz = inputs[i].Size;
 				if (sz.Width > settings.Size.Width || sz.Height > settings.Size.Height)
 				{
-					//Console.WriteLine("warning: input {0}:{1} is too large!", i, sz);
+					if(debug)
+						Console.WriteLine("warning: input {0}:{1} is too large!", i, sz);
 					continue;
 				}
 
@@ -177,7 +179,8 @@ namespace MCD
 				// if running out of spaces, create a new tree for packing
 				if(-1 == ret)
 				{
-					Console.WriteLine("Running out of space, allocate a new texture");
+					if(debug)
+						Console.WriteLine("Running out of space, allocate a new texture");
 					Tree tree = new Tree(settings.Size);
 					trees.Add(tree);
 
@@ -185,7 +188,7 @@ namespace MCD
 					if (-1 != ret) // packed
 						tree.Nodes[ret].Input = i;
 					else
-						Console.WriteLine("still cannot pack input {0}:{1}!", i, sz);
+						if(debug) Console.WriteLine("still cannot pack input {0}:{1}!", i, sz);
 				}
 			}
 

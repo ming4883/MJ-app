@@ -40,7 +40,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -59,9 +58,6 @@
     </Compile>
     <Compile Include="PreFaceUnwrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI_Utils.cs">
-      <SubType>Form</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BinPacking\BinPacking.csproj">

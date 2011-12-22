@@ -2,16 +2,24 @@
 ASSEMBLY = dotNetClass "System.Reflection.Assembly"
 IO_PATH = dotNetClass "System.IO.Path"
 
-dllPath = IO_PATH.GetFullPath "MeshUnwrapping.dll"
-dllLoaded = false
-
-if doesFileExist dllPath then
+fn loadAssembly dllPath =
 (
-	local uri = "file://"  + dllPath
-	format "trying to load Assembly '%'\n" uri
+	local dllLoaded = false
+
+	if doesFileExist dllPath then
+	(
+		local uri = "file://"  + dllPath
+		format "trying to load Assembly '%'\n" uri
+		
+		r = ASSEMBLY.LoadFrom uri
+		dllLoaded = true
+	)
+	else
+	(
+		format "'%' not exists!\n" dllPath
+	)
 	
-	r = ASSEMBLY.LoadFrom uri
-	dllLoaded = true
+	return dllLoaded
 )
 
 fn addToMeshBuilder2 obj builder =
@@ -159,14 +167,14 @@ fn setupRTT tmesh mapsize =
 	tmesh.INodeBakeProperties.bakeChannel = 2 --channel to bake
 )
 
-dlg = undefined
+lmapPackDlg = undefined
 
-fn onMaxSelectionSetChanged = 
+fn showSelectedAABB = 
 (
-	if undefined == dlg then ( return false )
+	if undefined == lmapPackDlg then ( return false )
 	
 	if selection.count == 0 then (
-		dlg.Info = ""
+		lmapPackDlg.Info = ""
 		return false
 	)
 	
@@ -186,146 +194,147 @@ fn onMaxSelectionSetChanged =
 	
 	local sz = [gmax.x - gmin.x, gmax.y - gmin.y, gmax.z - gmin.z]
 	local szstr = (units.formatValue sz.x) + ", " + (units.formatValue sz.y) + ", " + (units.formatValue sz.z)
-	dlg.SetInfo "Selection Size: {0}" szstr
+	lmapPackDlg.SetInfo "Selection Size: {0}" szstr
 )
 
-fn test3 = 
+fn onPackLightmap a b = 
 (
-	fn onPack a b = 
+	local console = dotNetClass "System.Console"
+	
+	local sel = selection as array
+	
+	if sel.count == 0 then
 	(
-		local console = dotNetClass "System.Console"
-		
-		local sel = selection as array
-		
-		if sel.count == 0 then
+		messageBox "Selection is empty"
+		return false
+	)
+	
+	local mapSize = lmapPackDlg.MapSize
+	local pixRatio = (units.decodeValue lmapPackDlg.PixelSizeWithUnits)
+	console.Write "pixRatio={0}\n" (pixRatio as string)
+	
+	local merged = undefined
+	
+	undo off
+	(
+		for i = 1 to sel.count do
 		(
-			messageBox "Selection is empty"
-			return false
-		)
-		
-		local mapSize = dlg.MapSize
-		local pixRatio = (units.decodeValue dlg.PixelSizeWithUnits)
-		console.Write "pixRatio={0}\n" (pixRatio as string)
-		
-		local merged = undefined
-		
-		undo off
-		(
-			for i = 1 to sel.count do
+			console.Write "processing {0}\n" (sel[i] as string)
+			
+			if canConvertTo sel[i] Editable_Mesh then
 			(
-				console.Write "processing {0}\n" (sel[i] as string)
-				
-				if canConvertTo sel[i] Editable_Mesh then
+				local curr = snapshot sel[i]
+				if undefined == merged then
 				(
-					local curr = snapshot sel[i]
-					if undefined == merged then
-					(
-						merged = curr
-						merged.name = "Merged"
-					)
-					else
-					(
-						meshop.attach merged curr attachMat:#IDToMat condenseMat:true
-					)
+					merged = curr
+					merged.name = "Merged"
+				)
+				else
+				(
+					meshop.attach merged curr attachMat:#IDToMat condenseMat:true
 				)
 			)
 		)
-		
-		if undefined == merged then
-		(
-			console.Write "Merged is undefined, abort!\n"
-			return false
-		)
-		
-		console.Write "Bounding Box = min:{0} max:{1}\n" (merged.min as string) (merged.max as string)
-		
-		local unwrapper = (dotNetObject "MCD.GroupedFaceUnwrapper")
-		local mbuilder = (dotNetObject "MCD.MeshBuilder")
-		
-		addToMeshBuilder2 merged mbuilder
-		
-		local fmesh = mbuilder.ToMesh()
-		console.Write "final mesh:f{0} v{1}\n" (fmesh.FaceCount as string) (fmesh.VertexCount as string)
-		
-		-- local MESH_UTIL = dotNetClass "MCD.MeshUtil"
-		-- MESH_UTIL.Save fmesh ((GetDir #export)+"/testmesh.txt")
-		
-		console.Write "perform packing...\n"
-		unwrapper.Border = dlg.BorderSize
-		local packed = unwrapper.Unwrap fmesh (mapSize / 2) (1.0 / pixRatio)
-		
-		if mapSize > unwrapper.OutputSize then ( mapSize = unwrapper.OutputSize )
-		
-		console.Write "output cnt={0} opt-size={1}\n" (packed.Count as string) (unwrapper.OutputSize as string)
-		
-		undo on
-		(
-			console.Write "saving results...\n"
-			
-			for i = 1 to packed.Count do
-			(
-				--local mname = dlg.OutputName +(i as string)
-				local mname = dlg.OutputName
-				local mmesh = toMaxMesh2 (packed.Item (i-1)) merged mname
-				
-				setupRTT mmesh mapSize
-				
-				mmesh.material = merged.material
-			)
-		)
-		
-		undo off
-		(
-			-- merged is no longer needed
-			try
-			(
-				delete merged
-			)
-			catch
-			(
-			)
-		)
-		
-		console.Write "done!\n"
 	)
 	
+	if undefined == merged then
+	(
+		console.Write "Merged is undefined, abort!\n"
+		return false
+	)
+	
+	console.Write "Bounding Box = min:{0} max:{1}\n" (merged.min as string) (merged.max as string)
+	
+	local unwrapper = (dotNetObject "MCD.GroupedFaceUnwrapper")
+	local mbuilder = (dotNetObject "MCD.MeshBuilder")
+	
+	addToMeshBuilder2 merged mbuilder
+	
+	local fmesh = mbuilder.ToMesh()
+	console.Write "final mesh:f{0} v{1}\n" (fmesh.FaceCount as string) (fmesh.VertexCount as string)
+	
+	console.Write "perform packing...\n"
+	unwrapper.Border = lmapPackDlg.BorderSize
+	local packed = unwrapper.Unwrap fmesh (mapSize / 2) (1.0 / pixRatio)
+	
+	if mapSize > unwrapper.OutputSize then ( mapSize = unwrapper.OutputSize )
+	
+	console.Write "output cnt={0} opt-size={1}\n" (packed.Count as string) (unwrapper.OutputSize as string)
+	
+	undo on
+	(
+		console.Write "saving results...\n"
+		
+		for i = 1 to packed.Count do
+		(
+			local mname = lmapPackDlg.OutputName
+			local mmesh = toMaxMesh2 (packed.Item (i-1)) merged mname
+			
+			setupRTT mmesh mapSize
+			
+			mmesh.material = merged.material
+		)
+	)
+	
+	undo off
+	(
+		-- merged is no longer needed
+		try
+		(
+			delete merged
+		)
+		catch
+		(
+		)
+	)
+	
+	console.Write "done!\n"
+)
+
+fn openLmapPackDlg = 
+(
 	fn onActivated a b =
 	(
-		-- format "PreActive: accel state %\n" enableAccelerators
 		enableAccelerators = false
-		-- format "PostActive: accel state %\n" enableAccelerators
 	)
 	
 	fn onDeactivated a b =
 	(
-		-- format "PreDeactive: accel state %\n" enableAccelerators
 		enableAccelerators = true
-		-- format "PostDeactive: accel state %\n" enableAccelerators
 	)
 	
 	fn onFormClosing a b =
 	(
-		dlg = undefined
+		lmapPackDlg = undefined
 		callbacks.removeScripts #selectionSetChanged id:#mcdPack
 	)
 	
-	format "performing test3()...\n"
-	
 	callbacks.removeScripts #selectionSetChanged id:#mcdPack
-	callbacks.addScript #selectionSetChanged "onMaxSelectionSetChanged()" id:#mcdPack
+	callbacks.addScript #selectionSetChanged "showSelectedAABB()" id:#mcdPack
 	
-	dlg = dotNetObject "MCD.PackDialog"
-	dlg.Text = "Lightmap Packing"
-	dotNet.addEventHandler dlg "Pack" onPack
-	dotNet.addEventHandler dlg "Activated" onActivated
-	dotNet.addEventHandler dlg "Deactivate" onDeactivated
-	dotNet.addEventHandler dlg "FormClosing" onFormClosing
-	dlg.DoModel()
+	lmapPackDlg = dotNetObject "MCD.LightmapPackDialog"
+	dotNet.addEventHandler lmapPackDlg "Pack" onPackLightmap
+	dotNet.addEventHandler lmapPackDlg "Activated" onActivated
+	dotNet.addEventHandler lmapPackDlg "Deactivate" onDeactivated
+	dotNet.addEventHandler lmapPackDlg "FormClosing" onFormClosing
+	
+	lmapPackDlg.Show()
 	
 	return true
 )
 
-if dllLoaded then
+rollout UtilMCDPackUV "MCD PackUV" width:160 height:136
 (
-	test3()
+	button btnOpen "Lightmap" pos:[8,8] width:144 height:21
+	
+	on btnOpen pressed do
+	(
+		if	(loadAssembly (IO_PATH.GetFullPath "MeshUnwrapping.dll")) and \
+			(loadAssembly (IO_PATH.GetFullPath "MCDPackUV.dll")) then
+		(
+			openLmapPackDlg()
+		)
+	)
 )
+
+addRollout UtilMCDPackUV

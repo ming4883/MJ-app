@@ -222,6 +222,7 @@ namespace MCD
 				packOutputs.Clear();
 
 				JimScottPacker packer = new JimScottPacker();
+				packer.debug = debug;
 				packer.Pack(packSettings, packInputs, packOutputs);
 
 				if (SingleMeshOutput)
